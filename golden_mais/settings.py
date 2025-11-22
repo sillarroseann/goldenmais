@@ -14,7 +14,8 @@ SECRET_KEY = os.getenv('SECRET_KEY', '2db2f7fb6507b474c20bc0c5b1664c70')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
+default_allowed_hosts = "localhost,127.0.0.1,127.0.0.1:8000,0.0.0.0,*.onrender.com,goldenmais.onrender.com"
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", default_allowed_hosts).split(",")
 
 # Application definition
 INSTALLED_APPS = [
