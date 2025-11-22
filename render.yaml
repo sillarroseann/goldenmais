@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: goldenmais
+    env: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn golden_mais.wsgi:application
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DJANGO_SETTINGS_MODULE
+        value: golden_mais.settings
+databases:
+  - name: goldenmais-db
+    plan: free
