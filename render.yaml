@@ -7,8 +7,9 @@ services:
       pip install -r requirements.txt
       python manage.py collectstatic --noinput
     startCommand: |
+      rm -f db.sqlite3
       python manage.py migrate --noinput
-      gunicorn golden_mais.wsgi:application 
+      gunicorn golden_mais.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9

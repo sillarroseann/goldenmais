@@ -1,4 +1,4 @@
-from django.db import migrations, models
+from django.db import migrations
 
 
 class Migration(migrations.Migration):
@@ -7,25 +7,6 @@ class Migration(migrations.Migration):
         ('core', '0001_initial'),
     ]
 
-    operations = [
-        migrations.AddField(
-            model_name='order',
-            name='tracking_number',
-            field=models.CharField(blank=True, max_length=50),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='estimated_delivery',
-            field=models.DateTimeField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='delivered_at',
-            field=models.DateTimeField(blank=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='delivery_notes',
-            field=models.TextField(blank=True),
-        ),
-    ]
+    # These fields already exist in the initial migration. Leave this migration as a no-op
+    # so Django's migration history stays consistent without trying to add duplicate columns.
+    operations = []
