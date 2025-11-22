@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Sign Up | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex">
+    <!-- Left Side: Corn Image -->
+    <div class="hidden md:flex w-1/2 bg-cover bg-center"
+         style="background-image: url('{% static 'img/corny.png' %}');">
+    </div>
+
+    <!-- Right Side: Sign Up Form -->
+    <div class="flex flex-col justify-center items-center w-full md:w-1/2 bg-gray-50 p-8">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+            <div class="text-center mb-6">
+                <img src="{% static 'img/logo.png' %}" alt="Golden Mais Logo" class="w-16 h-16 mx-auto mb-4 rounded-full">
+                <h2 class="text-3xl font-bold text-green-800">Create Account</h2>
+                <p class="text-gray-500 mt-2">Join us today — it's quick and easy!</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p><strong>{{ field|title }}:</strong> {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            {{ form.first_name }}
+                            {% if form.first_name.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.first_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        <div>
+                            {{ form.last_name }}
+                            {% if form.last_name.errors %}
+                                <div class="text-red-600 text-sm mt-1">{{ form.last_name.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.username.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {{ form.phone }}
+                        {% if form.phone.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.phone.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.password1.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-red-600 text-sm mt-1">{{ form.password2.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Optional fields -->
+                    <div class="border-t pt-4">
+                        <p class="text-sm text-gray-600 mb-3">Optional Information:</p>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.address.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div>
+                                {{ form.city }}
+                                {% if form.city.errors %}
+                                    <div class="text-red-600 text-sm mt-1">{{ form.city.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <input type="checkbox" id="terms" name="terms" required 
+                               class="rounded border-gray-300 text-yellow-600 shadow-sm focus:border-yellow-300 focus:ring focus:ring-yellow-200 focus:ring-opacity-50">
+                        <label for="terms" class="ml-2 text-sm text-gray-600">
+                            I agree to the <a href="#" class="text-green-600 hover:text-green-800">Terms of Service</a> 
+                            and <a href="#" class="text-green-600 hover:text-green-800">Privacy Policy</a>
+                        </label>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition duration-200">
+                        Create Account
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 text-center">
+                <p class="text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="text-green-600 hover:text-green-800 font-semibold">
+                        Sign in here
+                    </a>
+                </p>
+            </div>
+
+        </div>
+
+        <!-- Quick Links -->
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-600 mb-2">Quick Links:</p>
+            <div class="space-x-4">
+                <a href="{% url 'home' %}" class="text-green-600 hover:text-green-800 text-sm">Home</a>
+                <a href="{% url 'products' %}" class="text-green-600 hover:text-green-800 text-sm">Products</a>
+                <a href="{% url 'about' %}" class="text-green-600 hover:text-green-800 text-sm">About</a>
+                <a href="{% url 'contact' %}" class="text-green-600 hover:text-green-800 text-sm">Contact</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Password strength indicator
+    document.addEventListener('DOMContentLoaded', function() {
+        const password1 = document.querySelector('input[name="password1"]');
+        const password2 = document.querySelector('input[name="password2"]');
+        
+        if (password2) {
+            password2.addEventListener('input', function() {
+                if (password1.value && password2.value) {
+                    if (password1.value === password2.value) {
+                        password2.classList.remove('border-red-300');
+                        password2.classList.add('border-green-300');
+                    } else {
+                        password2.classList.remove('border-green-300');
+                        password2.classList.add('border-red-300');
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

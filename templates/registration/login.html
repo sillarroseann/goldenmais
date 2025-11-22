@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login | Golden Mais{% endblock %}
+
+
+{% block content %}
+<div class="min-h-screen flex">
+    <!-- Left Side: Corn Image -->
+    <div class="hidden md:flex w-1/2 bg-cover bg-center"
+         style="background-image: url('{% static 'img/corny.png' %}');">
+    </div>
+
+    <!-- Right Side: Login Form -->
+    <div class="flex flex-col justify-center items-center w-full md:w-1/2 bg-gray-50 p-8">
+        <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+            <div class="text-center mb-6">
+                <img src="{% static 'img/logo.png' %}" alt="Golden Mais Logo" class="w-16 h-16 mx-auto mb-4 rounded-full">
+                <h2 class="text-3xl font-bold text-green-800">Welcome Back!</h2>
+                <p class="text-gray-500 mt-2">Sign in to your account to continue</p>
+            </div>
+
+            {% if form.errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post" autocomplete="off">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <input type="text" 
+                               id="username"
+                               name="username" 
+                               placeholder="Username or Email"
+                               autocomplete="off"
+                               spellcheck="false"
+                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                               required>
+                    </div>
+                    
+                    <div class="relative">
+                        <input type="password" 
+                               id="password"
+                               name="password" 
+                               placeholder="Password"
+                               autocomplete="new-password"
+                               spellcheck="false"
+                               class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+                               required>
+                        <button type="button" id="togglePassword" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10">
+                            <i class="fas fa-eye text-lg" id="eyeIcon"></i>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between">
+                        <label class="flex items-center">
+                            <input type="checkbox" name="remember_me" class="rounded border-gray-300 text-yellow-600 shadow-sm focus:border-yellow-300 focus:ring focus:ring-yellow-200 focus:ring-opacity-50">
+                            <span class="ml-2 text-sm text-gray-600">Remember me</span>
+                        </label>
+                        <a href="#" class="text-sm text-green-600 hover:text-green-800">Forgot password?</a>
+                    </div>
+
+                    <button type="submit"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition duration-200">
+                        Sign In
+                    </button>
+                </div>
+            </form>
+
+            <!-- Signup Section -->
+            <div class="mt-6 text-center">
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">New to Golden Mais?</span>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <p class="text-gray-600 mb-3">Join our community and enjoy fresh corn products!</p>
+                    <a href="{% url 'signup' %}" 
+                       class="w-full inline-block bg-yellow-600 hover:bg-yellow-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 text-center">
+                        Create New Account
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="mt-8 text-center">
+            <p class="text-sm text-gray-600 mb-2">Quick Links:</p>
+            <div class="space-x-4">
+                <a href="{% url 'home' %}" class="text-green-600 hover:text-green-800 text-sm">Home</a>
+                <a href="{% url 'products' %}" class="text-green-600 hover:text-green-800 text-sm">Products</a>
+                <a href="{% url 'about' %}" class="text-green-600 hover:text-green-800 text-sm">About</a>
+                <a href="{% url 'contact' %}" class="text-green-600 hover:text-green-800 text-sm">Contact</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Password show/hide functionality and form security
+document.addEventListener('DOMContentLoaded', function() {
+    const password = document.getElementById('password');
+    const username = document.getElementById('username');
+    const togglePassword = document.getElementById('togglePassword');
+    const eyeIcon = document.getElementById('eyeIcon');
+    const form = document.querySelector('form');
+    
+    // Clear form fields on page load to prevent auto-fill
+    if (username) username.value = '';
+    if (password) password.value = '';
+    
+    // Disable browser password saving
+    if (username) username.setAttribute('autocomplete', 'off');
+    if (password) password.setAttribute('autocomplete', 'new-password');
+    
+    if (togglePassword && password && eyeIcon) {
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            // Toggle eye icon
+            if (type === 'text') {
+                eyeIcon.classList.remove('fa-eye');
+                eyeIcon.classList.add('fa-eye-slash');
+            } else {
+                eyeIcon.classList.remove('fa-eye-slash');
+                eyeIcon.classList.add('fa-eye');
+            }
+        });
+    }
+    
+    // Clear form after submission attempt (whether successful or not)
+    if (form) {
+        form.addEventListener('submit', function() {
+            setTimeout(function() {
+                if (username) username.value = '';
+                if (password) password.value = '';
+            }, 100);
+        });
+    }
+    
+    // Clear form when page becomes visible (e.g., back button)
+    document.addEventListener('visibilitychange', function() {
+        if (!document.hidden) {
+            if (username) username.value = '';
+            if (password) password.value = '';
+        }
+    });
+    
+    // Prevent form data from being cached
+    window.addEventListener('beforeunload', function() {
+        if (username) username.value = '';
+        if (password) password.value = '';
+    });
+});
+</script>
+{% endblock %}

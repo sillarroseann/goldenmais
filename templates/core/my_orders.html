@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-6xl mx-auto px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">My Orders</h1>
+            <p class="text-gray-600 mt-2">Track and manage your orders</p>
+        </div>
+
+        <!-- Shopee-Style Status Tabs -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="flex border-b">
+                <a href="{% url 'my_orders' 'to_pay' %}" 
+                   class="flex-1 px-4 py-3 text-center {% if status_filter == 'to_pay' %}text-red-600 border-b-2 border-red-600 font-semibold{% else %}text-gray-600 hover:text-gray-800{% endif %}">
+                    <i class="fas fa-credit-card mr-2"></i>To Pay
+                    {% if status_counts.to_pay > 0 %}
+                        <span class="ml-1 bg-red-500 text-white text-xs rounded-full px-2 py-1">{{ status_counts.to_pay }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'my_orders' 'to_ship' %}" 
+                   class="flex-1 px-4 py-3 text-center {% if status_filter == 'to_ship' %}text-blue-600 border-b-2 border-blue-600 font-semibold{% else %}text-gray-600 hover:text-gray-800{% endif %}">
+                    <i class="fas fa-box mr-2"></i>To Ship
+                    {% if status_counts.to_ship > 0 %}
+                        <span class="ml-1 bg-blue-500 text-white text-xs rounded-full px-2 py-1">{{ status_counts.to_ship }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'my_orders' 'to_receive' %}" 
+                   class="flex-1 px-4 py-3 text-center {% if status_filter == 'to_receive' %}text-yellow-600 border-b-2 border-yellow-600 font-semibold{% else %}text-gray-600 hover:text-gray-800{% endif %}">
+                    <i class="fas fa-truck mr-2"></i>To Receive
+                    {% if status_counts.to_receive > 0 %}
+                        <span class="ml-1 bg-yellow-500 text-white text-xs rounded-full px-2 py-1">{{ status_counts.to_receive }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'my_orders' 'completed' %}" 
+                   class="flex-1 px-4 py-3 text-center {% if status_filter == 'completed' %}text-green-600 border-b-2 border-green-600 font-semibold{% else %}text-gray-600 hover:text-gray-800{% endif %}">
+                    <i class="fas fa-check-circle mr-2"></i>Completed
+                    {% if status_counts.completed > 0 %}
+                        <span class="ml-1 bg-green-500 text-white text-xs rounded-full px-2 py-1">{{ status_counts.completed }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'my_orders' 'returned' %}" 
+                   class="flex-1 px-4 py-3 text-center {% if status_filter == 'returned' %}text-orange-600 border-b-2 border-orange-600 font-semibold{% else %}text-gray-600 hover:text-gray-800{% endif %}">
+                    <i class="fas fa-undo mr-2"></i>Returned
+                    {% if status_counts.returned > 0 %}
+                        <span class="ml-1 bg-orange-500 text-white text-xs rounded-full px-2 py-1">{{ status_counts.returned }}</span>
+                    {% endif %}
+                </a>
+                <a href="{% url 'my_orders' 'cancelled' %}" 
+                   class="flex-1 px-4 py-3 text-center {% if status_filter == 'cancelled' %}text-gray-600 border-b-2 border-gray-600 font-semibold{% else %}text-gray-600 hover:text-gray-800{% endif %}">
+                    <i class="fas fa-times-circle mr-2"></i>Cancelled
+                    {% if status_counts.cancelled > 0 %}
+                        <span class="ml-1 bg-gray-500 text-white text-xs rounded-full px-2 py-1">{{ status_counts.cancelled }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+
+        <!-- Orders List -->
+        <div class="space-y-4">
+            {% for order in orders %}
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-semibold text-lg">Order #{{ order.order_number }}</h3>
+                            <p class="text-gray-500 text-sm">{{ order.created_at|date:"M d, Y g:i A" }}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-sm font-medium
+                            {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif order.status == 'processing' %}bg-blue-100 text-blue-800
+                            {% elif order.status == 'shipped' %}bg-purple-100 text-purple-800
+                            {% elif order.status == 'delivered' %}bg-green-100 text-green-800
+                            {% elif order.status == 'returned' %}bg-orange-100 text-orange-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <div class="border-t pt-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-600">{{ order.items.count }} item{{ order.items.count|pluralize }}</p>
+                                <p class="font-semibold text-lg">₱{{ order.total }}</p>
+                            </div>
+                            <div class="space-x-2">
+                                <a href="{% url 'track_order' order.order_number %}" 
+                                   class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                                    Track Order
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="bg-white rounded-lg shadow-md p-12 text-center">
+                    <i class="fas fa-shopping-bag text-4xl text-gray-300 mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No orders found</h3>
+                    <p class="text-gray-500">You don't have any orders in this category yet.</p>
+                    <a href="{% url 'products' %}" 
+                       class="mt-4 inline-block bg-yellow-600 text-white px-6 py-2 rounded hover:bg-yellow-700">
+                        Start Shopping
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

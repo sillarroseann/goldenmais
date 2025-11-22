@@ -1,0 +1,81 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Feedback Detail | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <p class="text-sm uppercase tracking-wide text-gray-400 font-semibold">Customer Feedback</p>
+        <h1 class="text-3xl font-bold text-gray-900">Feedback Detail</h1>
+        <p class="text-gray-600">Review the full submission and provide an admin response.</p>
+    </div>
+    <a href="{% url 'admin_feedback_dashboard' %}" class="inline-flex items-center px-4 py-2 rounded-md bg-gray-700 text-white hover:bg-gray-800 transition">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Feedback
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Feedback Content -->
+    <div class="lg:col-span-2 floating-section rounded-2xl p-6">
+        <div class="flex flex-wrap items-center gap-3 mb-4">
+            <h2 class="text-2xl font-semibold text-gray-900">
+                {% if feedback.is_anonymous %}
+                    Anonymous Customer
+                {% else %}
+                    {{ feedback.customer.user.get_full_name|default:feedback.customer.user.username }}
+                {% endif %}
+            </h2>
+            <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 uppercase">{{ feedback.get_feedback_type_display }}</span>
+            {% if feedback.rating %}
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                    <i class="fas fa-star mr-1 text-yellow-500"></i>{{ feedback.rating }}/5
+                </span>
+            {% endif %}
+            {% if feedback.is_published %}
+                <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><i class="fas fa-globe mr-1"></i>Published</span>
+            {% endif %}
+        </div>
+        <p class="text-sm text-gray-500 mb-6">Submitted on {{ feedback.created_at|date:"M d, Y g:i A" }}</p>
+
+        {% if feedback.subject %}
+            <p class="text-lg font-semibold text-gray-900 mb-2">{{ feedback.subject }}</p>
+        {% endif %}
+        <p class="text-gray-700 whitespace-pre-line">{{ feedback.message }}</p>
+
+        {% if feedback.order %}
+            <div class="mt-6 text-sm text-gray-600 flex items-center">
+                <i class="fas fa-shopping-bag mr-2 text-gray-400"></i>
+                Related Order: #{{ feedback.order.order_number }}
+            </div>
+        {% endif %}
+
+    </div>
+
+    <!-- Response Form -->
+    <div class="floating-section rounded-2xl p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Admin Response</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Response Message</label>
+                <textarea name="admin_response" rows="6" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" placeholder="Write your response here..."></textarea>
+            </div>
+            <div class="flex items-center mb-4">
+                <input type="checkbox" id="is_published" name="is_published" class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded" {% if feedback.is_published %}checked{% endif %}>
+                <label for="is_published" class="ml-2 text-sm text-gray-700">Publish this response on the website</label>
+            </div>
+            <button type="submit" class="w-full bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 transition">
+                <i class="fas fa-paper-plane mr-2"></i>Send Response
+            </button>
+        </form>
+
+        {% if feedback.admin_response %}
+            <div class="mt-4 text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <p class="font-semibold mb-1">Last Response Sent</p>
+                <p class="text-gray-600">{{ feedback.admin_response }}</p>
+                <p class="text-xs text-gray-500 mt-2">Sent by {{ feedback.responded_by.get_full_name|default:feedback.responded_by.username }} on {{ feedback.responded_at|date:"M d, Y g:i A" }}</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

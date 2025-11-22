@@ -1,0 +1,451 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} | Golden Mais{% endblock %}
+
+{% block content %}
+<!-- Product Detail Section -->
+<section class="py-16 px-8">
+    <div class="max-w-6xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center space-x-2 text-sm text-gray-500">
+                <li><a href="{% url 'home' %}" class="hover:text-green-600">Home</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                <li><a href="{% url 'products' %}" class="hover:text-green-600">Products</a></li>
+                <li><i class="fas fa-chevron-right text-xs"></i></li>
+                <li class="text-gray-800">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <!-- Product Images -->
+            <div>
+                <div class="aspect-square bg-gray-100 rounded-2xl overflow-hidden mb-4">
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                             class="w-full h-full object-cover">
+                    {% else %}
+                        <div class="w-full h-full flex items-center justify-center">
+                            <i class="fas fa-image text-gray-400 text-6xl"></i>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Additional product images would go here -->
+                <div class="grid grid-cols-4 gap-2">
+                    {% for i in "1234" %}
+                    <div class="aspect-square bg-gray-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-75 transition">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                                 class="w-full h-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full flex items-center justify-center">
+                                <i class="fas fa-image text-gray-400"></i>
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Product Information -->
+            <div>
+                <!-- Product badges -->
+                <div class="flex flex-wrap gap-2 mb-4">
+                    {% if product.is_new %}
+                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">New Harvest</span>
+                    {% endif %}
+                    {% if product.is_bestseller %}
+                        <span class="bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">Best Seller</span>
+                    {% endif %}
+                    {% if product.free_delivery %}
+                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Free Delivery</span>
+                    {% endif %}
+                </div>
+
+                <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ product.name }}</h1>
+                
+                <!-- Rating -->
+                {% if avg_rating %}
+                <div class="flex items-center mb-4">
+                    <div class="flex text-yellow-400">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= avg_rating %}⭐{% else %}☆{% endif %}
+                        {% endfor %}
+                    </div>
+                    <span class="ml-2 text-sm text-gray-600">({{ reviews.count }} reviews)</span>
+                </div>
+                {% endif %}
+
+                <!-- Price -->
+                <div class="mb-6">
+                    <span class="text-3xl font-bold text-green-600">₱{{ product.price }}</span>
+                    <span class="text-sm text-gray-500 ml-2">per {{ product.category.name|lower }}</span>
+                </div>
+
+                <!-- Description -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Description</h3>
+                    <p class="text-gray-700 leading-relaxed">{{ product.description }}</p>
+                </div>
+
+                <!-- Product Details -->
+                <div class="mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-3">Product Details</h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <span class="text-gray-600">Category:</span>
+                            <span class="font-medium">{{ product.category.name }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Type:</span>
+                            <span class="font-medium">{{ product.get_product_type_display }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Stock:</span>
+                            <span class="font-medium {% if product.stock_quantity > 0 %}text-green-600{% else %}text-red-600{% endif %}">
+                                {% if product.stock_quantity > 0 %}{{ product.stock_quantity }} available{% else %}Out of stock{% endif %}
+                            </span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Delivery:</span>
+                            <span class="font-medium">{% if product.free_delivery %}Free{% else %}Standard rates apply{% endif %}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add to Cart Form -->
+                {% if user.is_authenticated %}
+                    {% if product.stock_quantity > 0 %}
+                    <div class="mb-6">
+                        <!-- Quantity Selection -->
+                        <div class="flex items-center space-x-4 mb-4">
+                            <label for="quantity" class="text-sm font-medium text-gray-700">Quantity:</label>
+                            <input type="number" id="quantity-input" name="quantity" value="1" min="1" max="{{ product.stock_quantity }}" 
+                                   class="w-20 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500">
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="flex space-x-4">
+                            <!-- Add to Cart Button -->
+                            <button onclick="addToCart({{ product.id }})" id="add-to-cart-btn"
+                                    class="flex-1 bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition">
+                                <i class="fas fa-shopping-cart mr-2"></i>
+                                Add to Cart
+                            </button>
+                            
+                            <!-- Buy Now Button (TikTok-style) -->
+                            <button onclick="buyNow({{ product.id }})" id="buy-now-btn"
+                                    class="flex-1 bg-orange-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-orange-700 transition">
+                                <i class="fas fa-bolt mr-2"></i>
+                                Buy Now
+                            </button>
+                            
+                            <!-- Wishlist Button -->
+                            <button type="button" 
+                                    class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Success Message -->
+                        <div id="cart-message" class="mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800 hidden">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            <span id="cart-message-text"></span>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="mb-6">
+                        <button disabled class="w-full bg-gray-400 text-white font-semibold py-3 px-6 rounded-lg cursor-not-allowed">
+                            Out of Stock
+                        </button>
+                    </div>
+                    {% endif %}
+                {% else %}
+                <div class="mb-6">
+                    <p class="text-gray-600 mb-4">Please log in to add items to your cart.</p>
+                    <a href="{% url 'login' %}" 
+                       class="inline-block bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition">
+                        Login to Order
+                    </a>
+                </div>
+                {% endif %}
+
+                <!-- Delivery Information -->
+                <div class="bg-green-50 rounded-lg p-4">
+                    <h4 class="font-semibold text-green-800 mb-2">Delivery Information</h4>
+                    <div class="space-y-2 text-sm text-green-700">
+                        <div class="flex items-center">
+                            <i class="fas fa-truck mr-2"></i>
+                            <span>Free delivery within Calubian, Leyte</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-clock mr-2"></i>
+                            <span>Same-day pickup available</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-leaf mr-2"></i>
+                            <span>Fresh from the farm daily</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Reviews Section -->
+<section class="py-16 px-8 bg-gray-50">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Customer Reviews</h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Reviews List -->
+            <div class="lg:col-span-2">
+                {% if reviews %}
+                    <div class="space-y-6">
+                        {% for review in reviews %}
+                        <div class="bg-white rounded-lg p-6 shadow-sm">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h4 class="font-semibold text-gray-900">
+                                        {{ review.customer.user.get_full_name|default:review.customer.user.username }}
+                                    </h4>
+                                    <div class="flex text-yellow-400 text-sm">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <span class="text-sm text-gray-500">{{ review.created_at|date:"M d, Y" }}</span>
+                            </div>
+                            <p class="text-gray-700">{{ review.comment }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="bg-white rounded-lg p-8 text-center">
+                        <p class="text-gray-500">No reviews yet. Be the first to review this product!</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Add Review Form -->
+            <div class="lg:col-span-1">
+                {% if user.is_authenticated and review_form %}
+                <div class="bg-white rounded-lg p-6 shadow-sm">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Write a Review</h3>
+                    
+                    <form method="post" action="{% url 'add_review' product.id %}">
+                        {% csrf_token %}
+                        <div class="space-y-4">
+                            <div>
+                                <label for="{{ review_form.rating.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Rating
+                                </label>
+                                {{ review_form.rating }}
+                            </div>
+
+                            <div>
+                                <label for="{{ review_form.comment.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                                    Your Review
+                                </label>
+                                {{ review_form.comment }}
+                            </div>
+
+                            <button type="submit" 
+                                    class="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition">
+                                Submit Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                {% elif not user.is_authenticated %}
+                <div class="bg-white rounded-lg p-6 shadow-sm text-center">
+                    <p class="text-gray-600 mb-4">Please log in to write a review.</p>
+                    <a href="{% url 'login' %}" 
+                       class="inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                        Login
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Products -->
+{% if related_products %}
+<section class="py-16 px-8">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold text-gray-900 mb-8">Related Products</h2>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for related_product in related_products %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition">
+                <a href="{% url 'product_detail' related_product.slug %}" class="block">
+                    {% if related_product.image %}
+                        <img src="{{ related_product.image.url }}" alt="{{ related_product.name }}" 
+                             class="w-full h-48 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer">
+                    {% else %}
+                        <div class="w-full h-48 bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer">
+                            <i class="fas fa-image text-gray-400 text-2xl"></i>
+                        </div>
+                    {% endif %}
+                </a>
+                
+                <div class="p-4">
+                    <h3 class="font-medium text-gray-900 mb-2">
+                        <a href="{% url 'product_detail' related_product.slug %}" class="hover:text-green-600">
+                            {{ related_product.name }}
+                        </a>
+                    </h3>
+                    <p class="text-green-600 font-semibold">₱{{ related_product.price }}</p>
+                    
+                    <a href="{% url 'product_detail' related_product.slug %}" 
+                       class="mt-3 w-full bg-green-600 text-white py-2 px-4 rounded text-center block hover:bg-green-700 transition">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // CSRF token for AJAX requests
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Add to Cart function (AJAX - no redirect)
+    function addToCart(productId) {
+        const quantity = document.getElementById('quantity-input').value;
+        const button = document.getElementById('add-to-cart-btn');
+        const originalText = button.innerHTML;
+        
+        // Show loading state
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Adding...';
+        button.disabled = true;
+        
+        // Prepare form data
+        const formData = new FormData();
+        formData.append('quantity', quantity);
+        formData.append('stay_on_page', 'true');
+        formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+        
+        // Send AJAX request
+        fetch(`/add-to-cart/${productId}/`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showMessage(data.message, 'success');
+                
+                if (typeof updateCartBadge === 'function') {
+                    updateCartBadge(data.cart_count);
+                }
+                
+                // Reset button
+                button.innerHTML = '<i class="fas fa-check mr-2"></i>Added!';
+                button.classList.remove('bg-green-600', 'hover:bg-green-700');
+                button.classList.add('bg-green-800');
+                
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.classList.remove('bg-green-800');
+                    button.classList.add('bg-green-600', 'hover:bg-green-700');
+                    button.disabled = false;
+                }, 2000);
+            } else {
+                showMessage('Error adding to cart. Please try again.', 'error');
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Error adding to cart. Please try again.', 'error');
+            button.innerHTML = originalText;
+            button.disabled = false;
+        });
+    }
+
+    // Buy Now function (TikTok-style direct checkout)
+    function buyNow(productId) {
+        const quantity = document.getElementById('quantity-input').value;
+        const button = document.getElementById('buy-now-btn');
+        const originalText = button.innerHTML;
+        
+        // Show loading state
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+        button.disabled = true;
+        
+        // Create a form and submit it
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/buy-now/${productId}/`;
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = getCookie('csrftoken');
+        form.appendChild(csrfInput);
+        
+        // Add quantity
+        const quantityInput = document.createElement('input');
+        quantityInput.type = 'hidden';
+        quantityInput.name = 'quantity';
+        quantityInput.value = quantity;
+        form.appendChild(quantityInput);
+        
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    // Show message function
+    function showMessage(message, type) {
+        const messageDiv = document.getElementById('cart-message');
+        const messageText = document.getElementById('cart-message-text');
+        
+        messageText.textContent = message;
+        
+        if (type === 'success') {
+            messageDiv.className = 'mt-4 p-3 bg-green-100 border border-green-300 rounded-lg text-green-800';
+        } else {
+            messageDiv.className = 'mt-4 p-3 bg-red-100 border border-red-300 rounded-lg text-red-800';
+        }
+        
+        messageDiv.classList.remove('hidden');
+        
+        // Hide message after 5 seconds
+        setTimeout(() => {
+            messageDiv.classList.add('hidden');
+        }, 5000);
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact Us</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">LOGO</div>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="product.html">Product</a>
+      <a href="order.html">Order</a>
+      <a href="report.html">Report</a>
+      <a href="contact.html">Contact</a>
+      <a href="#" onclick="logout()">Log Out</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Contact Us</h1>
+    <form onsubmit="submitContact(event)">
+      <input type="text" id="contactName" placeholder="Your Name" required />
+      <input type="email" id="contactEmail" placeholder="Your Email" required />
+      <textarea id="contactMessage" placeholder="Your Message" required></textarea>
+      <button type="submit">Send</button>
+    </form>
+    <p id="contactStatus"></p>
+  </main>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-elements">
+    <!-- Floating Home Button -->
+    <div class="fixed bottom-20 right-6 z-50">
+      <a href="index.html" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fas fa-home text-xl"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Home</span>
+      </a>
+    </div>
+
+    <!-- Floating WhatsApp Contact -->
+    <div class="fixed bottom-36 right-6 z-50">
+      <a href="https://wa.me/639631186511" target="_blank" class="bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fab fa-whatsapp text-xl"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">WhatsApp</span>
+      </a>
+    </div>
+
+    <!-- Floating Phone Button -->
+    <div class="fixed bottom-6 right-6 z-50">
+      <a href="tel:+639631186511" class="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fas fa-phone text-lg"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Call Us</span>
+      </a>
+    </div>
+  </div>
+
+  <script>
+    function submitContact(e) {
+      e.preventDefault();
+      const name = document.getElementById("contactName").value.trim();
+      const email = document.getElementById("contactEmail").value.trim();
+      const message = document.getElementById("contactMessage").value.trim();
+
+      if (!name || !email || !message) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      // Show success message with floating animation
+      showSuccessMessage();
+      document.getElementById("contactStatus").textContent = "Message sent! We'll get back to you soon.";
+      e.target.reset();
+    }
+
+    function showSuccessMessage() {
+      // Create floating success notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-6 right-6 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-500';
+      notification.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-check-circle"></i>
+          <span class="text-sm font-semibold">Message sent successfully!</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+      }, 100);
+
+      // Animate out and remove
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        notification.classList.remove('translate-x-0');
+        setTimeout(() => {
+          document.body.removeChild(notification);
+        }, 500);
+      }, 3000);
+    }
+
+    function logout() {
+      if (confirm("Are you sure you want to log out?")) {
+        window.location.href = "login.html";
+      }
+    }
+  </script>
+</body>
+</html>

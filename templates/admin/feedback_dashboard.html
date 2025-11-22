@@ -1,0 +1,97 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Customer Feedback | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Customer Feedback</h1>
+        <p class="text-gray-600">Review product and service feedback to improve experience</p>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-lg shadow p-5 mb-6">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="text-sm font-medium text-gray-600">Feedback Type</label>
+            <select name="type" class="mt-1 w-full border rounded px-3 py-2 focus:ring-yellow-500 focus:border-yellow-500" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="general" {% if type_filter == 'general' %}selected{% endif %}>General</option>
+                <option value="product" {% if type_filter == 'product' %}selected{% endif %}>Product</option>
+                <option value="service" {% if type_filter == 'service' %}selected{% endif %}>Service</option>
+                <option value="website" {% if type_filter == 'website' %}selected{% endif %}>Website</option>
+                <option value="complaint" {% if type_filter == 'complaint' %}selected{% endif %}>Complaint</option>
+                <option value="suggestion" {% if type_filter == 'suggestion' %}selected{% endif %}>Suggestion</option>
+            </select>
+        </div>
+        <div>
+            <label class="text-sm font-medium text-gray-600">Rating</label>
+            <select name="rating" class="mt-1 w-full border rounded px-3 py-2 focus:ring-yellow-500 focus:border-yellow-500" onchange="this.form.submit()">
+                <option value="">All</option>
+                {% for rating in '54321' %}
+                <option value="{{ rating }}" {% if rating_filter|stringformat:'s' == rating %}selected{% endif %}>{{ rating }} Star{{ rating|pluralize }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if type_filter or rating_filter %}
+            <div class="flex items-end">
+                <a href="{% url 'admin_feedback_dashboard' %}" class="w-full text-center bg-gray-100 border border-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-200">Clear Filters</a>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Feedback List -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="divide-y divide-gray-200">
+        {% for feedback in feedback_list %}
+        <div class="p-6 hover:bg-gray-50">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="flex items-center space-x-3">
+                        <h3 class="text-lg font-semibold text-gray-900">
+                            {% if feedback.is_anonymous %}
+                                Anonymous Customer
+                            {% else %}
+                                {{ feedback.customer.user.get_full_name|default:feedback.customer.user.username }}
+                            {% endif %}
+                        </h3>
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700 uppercase">{{ feedback.get_feedback_type_display }}</span>
+                        {% if feedback.rating %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                            <i class="fas fa-star mr-1 text-yellow-500"></i>{{ feedback.rating }}/5
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">{{ feedback.created_at|date:"M d, Y g:i A" }}</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    {% if feedback.is_published %}
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700"><i class="fas fa-globe mr-1"></i>Published</span>
+                    {% endif %}
+                    <a href="{% url 'admin_feedback_detail' feedback.id %}" class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+                        <i class="fas fa-eye mr-2"></i>View Details
+                    </a>
+                </div>
+            </div>
+            <div class="mt-4 text-gray-700">
+                <p class="font-medium text-gray-900">{{ feedback.subject }}</p>
+                <p class="mt-2">{{ feedback.message }}</p>
+            </div>
+            {% if feedback.order %}
+            <div class="mt-4 text-sm text-gray-600 flex items-center">
+                <i class="fas fa-shopping-bag mr-2 text-gray-400"></i>
+                Related Order: #{{ feedback.order.order_number }}
+            </div>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="p-10 text-center text-gray-500">
+            <i class="fas fa-comments text-4xl text-gray-300 mb-3"></i>
+            <p>No feedback found.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

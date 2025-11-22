@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed | Golden Mais{% endblock %}
+
+{% block content %}
+<!-- Payment Failed Header -->
+<section class="py-12 px-8 bg-red-50">
+    <div class="max-w-4xl mx-auto text-center">
+        <div class="flex justify-center mb-4">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <i class="fas fa-times text-red-600 text-2xl"></i>
+            </div>
+        </div>
+        <h1 class="text-3xl font-bold text-red-800 mb-2">Payment Failed</h1>
+        <p class="text-gray-600">We couldn't process your payment. Please try again.</p>
+    </div>
+</section>
+
+<!-- Payment Failed Content -->
+<section class="py-16 px-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-lg shadow-md p-8">
+            <!-- Order Information -->
+            <div class="mb-8">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Order Information</h2>
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-gray-600">Order Number:</span>
+                            <span class="font-medium ml-2">#{{ order.order_number }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Total Amount:</span>
+                            <span class="font-medium ml-2 text-red-600">₱{{ order.total }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Payment Method:</span>
+                            <span class="font-medium ml-2">{{ payment.get_payment_method_display }}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-600">Status:</span>
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-sm ml-2">Failed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Failure Reasons -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">Common Reasons for Payment Failure</h3>
+                <div class="space-y-3">
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">Insufficient Funds</p>
+                            <p class="text-gray-600 text-sm">Your account may not have enough balance to complete the transaction.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">Network Issues</p>
+                            <p class="text-gray-600 text-sm">Temporary connectivity problems may have interrupted the payment process.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">Payment Gateway Error</p>
+                            <p class="text-gray-600 text-sm">The payment service may be temporarily unavailable.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <i class="fas fa-exclamation-circle text-red-500 mt-1"></i>
+                        <div>
+                            <p class="font-medium text-gray-800">Card/Account Issues</p>
+                            <p class="text-gray-600 text-sm">Your payment method may be blocked or expired.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="space-y-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-4">What would you like to do?</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Try Again Button -->
+                    <button onclick="retryPayment()" 
+                            class="w-full bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-redo mr-2"></i>
+                        Try Payment Again
+                    </button>
+                    
+                    <!-- Choose Different Method -->
+                    <a href="{% url 'checkout' %}" 
+                       class="w-full bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition text-center block">
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Choose Different Payment Method
+                    </a>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    <!-- Cash Option -->
+                    <a href="{% url 'process_payment' order.id %}?payment_method=cash" 
+                       class="w-full bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-700 transition text-center block">
+                        <i class="fas fa-money-bill-wave mr-2"></i>
+                        Switch to Cash Payment
+                    </a>
+                    
+                    <!-- Contact Support -->
+                    <a href="{% url 'contact' %}" 
+                       class="w-full bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-700 transition text-center block">
+                        <i class="fas fa-headset mr-2"></i>
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+
+            <!-- Support Information -->
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg">
+                <div class="flex items-start space-x-3">
+                    <i class="fas fa-info-circle text-blue-600 mt-1"></i>
+                    <div>
+                        <p class="font-medium text-blue-800">Need Help?</p>
+                        <p class="text-blue-700 text-sm">
+                            If you continue to experience payment issues, please contact our support team. 
+                            We're here to help you complete your order successfully.
+                        </p>
+                        <div class="mt-2 space-y-1 text-sm text-blue-700">
+                            <p><i class="fas fa-phone mr-2"></i>Phone: +63 123 456 7890</p>
+                            <p><i class="fas fa-envelope mr-2"></i>Email: support@goldenmais.com</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function retryPayment() {
+        // Show loading state
+        const button = event.target;
+        const originalText = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Retrying...';
+        button.disabled = true;
+        
+        // Create form to retry payment with same method
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{% url "process_payment" order.id %}';
+        
+        // Add CSRF token
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        form.appendChild(csrfInput);
+        
+        // Add payment method
+        const paymentInput = document.createElement('input');
+        paymentInput.type = 'hidden';
+        paymentInput.name = 'payment_method';
+        paymentInput.value = '{{ payment.payment_method }}';
+        form.appendChild(paymentInput);
+        
+        // Submit form
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Auto-refresh payment status every 30 seconds in case of delayed updates
+    setInterval(function() {
+        fetch('{% url "check_payment_status" payment.id %}')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success && data.status === 'completed') {
+                // Payment was successful, redirect to success page
+                window.location.href = '{% url "order_success" order.id %}';
+            }
+        })
+        .catch(error => {
+            console.log('Status check failed:', error);
+        });
+    }, 30000);
+</script>
+{% endblock %}

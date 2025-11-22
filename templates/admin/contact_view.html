@@ -1,0 +1,144 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Contact Message | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="mb-8 flex items-center justify-between">
+    <div>
+        <p class="text-sm uppercase tracking-wide text-gray-400 font-semibold">Message Center</p>
+        <h1 class="text-3xl font-bold text-gray-900">Conversation with {{ contact.name }}</h1>
+        <p class="text-gray-500 text-sm mt-1">Respond to customer inquiries directly from the dashboard.</p>
+    </div>
+    <a href="{% url 'admin_contacts' %}" class="inline-flex items-center px-4 py-2 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 transition">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Messages
+    </a>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Summary Card -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 lg:col-span-1">
+        <div class="flex items-center gap-3 mb-6">
+            <div class="h-12 w-12 rounded-full bg-blue-100 text-blue-700 font-semibold text-lg flex items-center justify-center">
+                {{ contact.name|first|upper }}
+            </div>
+            <div>
+                <p class="text-base font-semibold text-gray-900">{{ contact.name }}</p>
+                <p class="text-sm text-gray-500">{{ contact.email }}</p>
+            </div>
+        </div>
+
+        <div class="space-y-4 text-sm text-gray-600">
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-500">Subject</span>
+                <span class="text-gray-900">{{ contact.subject|default:"No subject" }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-500">Received</span>
+                <span class="text-gray-900 text-right">{{ contact.created_at|date:"M d, Y" }}<br>{{ contact.created_at|time:"g:i A" }}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-500">Status</span>
+                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold {% if contact.is_read %}bg-emerald-100 text-emerald-700{% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                    {% if contact.is_read %}Replied{% else %}Awaiting reply{% endif %}
+                </span>
+            </div>
+            <div class="flex justify-between">
+                <span class="font-semibold text-gray-500">Time elapsed</span>
+                <span class="text-gray-900">{{ contact.created_at|timesince }} ago</span>
+            </div>
+        </div>
+
+        {% if contact.user %}
+        <div class="mt-6 border-t border-gray-100 pt-4">
+            <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold mb-3">Registered customer</p>
+            <dl class="space-y-2 text-sm text-gray-700">
+                <div class="flex justify-between"><dt class="text-gray-500">Username</dt><dd class="font-medium text-gray-900">{{ contact.user.username }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Name</dt><dd class="font-medium text-gray-900">{{ contact.user.get_full_name|default:'—' }}</dd></div>
+                <div class="flex justify-between"><dt class="text-gray-500">Joined</dt><dd class="font-medium text-gray-900">{{ contact.user.date_joined|date:"M d, Y" }}</dd></div>
+            </dl>
+        </div>
+        {% endif %}
+
+        <div class="mt-6 border-t border-gray-100 pt-4">
+            {% if not contact.is_read %}
+            <form method="post" action="{% url 'mark_contact_read' contact.id %}">
+                {% csrf_token %}
+                <button class="w-full inline-flex items-center justify-center px-4 py-2 rounded-xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition">
+                    <i class="fas fa-check mr-2"></i>Mark conversation as read
+                </button>
+            </form>
+            {% else %}
+            <div class="flex items-center text-sm text-emerald-600 font-semibold">
+                <i class="fas fa-check-circle mr-2"></i>Already marked as read
+            </div>
+            {% endif %}
+            <p class="text-xs text-gray-400 mt-3">All replies remain within Golden Mais—no external tools needed.</p>
+        </div>
+    </div>
+
+    <!-- Conversation -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold mb-4">Original message</p>
+            <div class="rounded-2xl bg-gray-50 border border-gray-100 p-5">
+                <div class="flex items-center justify-between mb-2">
+                    <p class="font-semibold text-gray-900">{{ contact.name }}</p>
+                    <span class="text-xs text-gray-500">{{ contact.created_at|date:"M d, Y g:i A" }}</span>
+                </div>
+                <p class="text-gray-700 whitespace-pre-line">{{ contact.message }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold">Conversation thread</p>
+                    <h2 class="text-xl font-semibold text-gray-900">Replies</h2>
+                </div>
+                <span class="text-sm text-gray-500">{{ replies|length }} reply{{ replies|length|pluralize }}</span>
+            </div>
+
+            <div class="mt-6 space-y-4">
+                {% for reply in replies %}
+                    {% if reply.is_admin %}
+                        <div class="flex justify-end">
+                            <div class="max-w-xl w-full bg-blue-50 border border-blue-100 rounded-2xl p-4 shadow-sm">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-semibold text-blue-800">{{ reply.sender_name|default:'Admin' }} <span class="text-xs text-blue-500">(Admin)</span></p>
+                                    <span class="text-xs text-blue-500">{{ reply.created_at|date:"M d, Y g:i A" }}</span>
+                                </div>
+                                <p class="text-gray-700 whitespace-pre-line">{{ reply.message }}</p>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="flex justify-start">
+                            <div class="max-w-xl w-full bg-gray-50 border border-gray-100 rounded-2xl p-4 shadow-sm">
+                                <div class="flex items-center justify-between mb-1">
+                                    <p class="text-sm font-semibold text-gray-800">{{ reply.sender_name }}</p>
+                                    <span class="text-xs text-gray-500">{{ reply.created_at|date:"M d, Y g:i A" }}</span>
+                                </div>
+                                <p class="text-gray-700 whitespace-pre-line">{{ reply.message }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <p class="text-sm text-gray-500">No replies yet. Be the first to respond.</p>
+                {% endfor %}
+            </div>
+
+            <div class="mt-8 border-t border-dashed pt-6">
+                <p class="text-xs uppercase tracking-wide text-gray-400 font-semibold mb-3">Send a reply</p>
+                <form method="post" class="space-y-4">
+                    {% csrf_token %}
+                    <textarea name="message" rows="4" class="w-full rounded-2xl border border-gray-200 px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Type your response..." required></textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition">
+                            <i class="fas fa-paper-plane mr-2"></i>Send Reply
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

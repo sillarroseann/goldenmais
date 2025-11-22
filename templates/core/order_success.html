@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-2xl mx-auto px-4">
+        <!-- Success Message -->
+        <div class="bg-white rounded-lg shadow-md p-8 text-center">
+            <div class="mb-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="fas fa-check text-2xl text-green-600"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
+                <p class="text-gray-600">Thank you for your order. We'll prepare your fresh corn products with care.</p>
+            </div>
+
+            <!-- Order Details -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <h2 class="text-xl font-semibold mb-4">Order Details</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                    <div>
+                        <p class="text-sm text-gray-600">Order Number</p>
+                        <p class="font-semibold text-lg">#{{ order.order_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Order Date</p>
+                        <p class="font-medium">{{ order.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Total Amount</p>
+                        <p class="font-semibold text-lg text-green-600">₱{{ order.total }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Status</p>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+
+                {% if order.delivery_method == 'delivery' %}
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="text-sm text-gray-600">Delivery Address</p>
+                        <p class="font-medium">{{ order.delivery_address }}</p>
+                    </div>
+                {% endif %}
+
+                {% if order.notes %}
+                    <div class="mt-4 pt-4 border-t">
+                        <p class="text-sm text-gray-600">Special Instructions</p>
+                        <p class="font-medium">{{ order.notes }}</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Order Items -->
+            <div class="mb-6">
+                <h3 class="text-lg font-semibold mb-4">Items Ordered</h3>
+                <div class="space-y-3">
+                    {% for item in order.items.all %}
+                        <div class="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                            <div class="flex items-center space-x-3">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                         class="w-12 h-12 object-cover rounded-md">
+                                {% else %}
+                                    <div class="w-12 h-12 bg-gray-200 rounded-md flex items-center justify-center">
+                                        <i class="fas fa-image text-gray-400"></i>
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <p class="font-medium">{{ item.product.name }}</p>
+                                    <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+                                </div>
+                            </div>
+                            <p class="font-semibold">₱{{ item.get_total_price }}</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Next Steps -->
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+                <h3 class="font-semibold text-yellow-800 mb-2">What's Next?</h3>
+                <div class="text-sm text-yellow-700 text-left space-y-1">
+                    {% if order.delivery_method == 'pickup' %}
+                        <p>• We'll prepare your order and notify you when it's ready for pickup</p>
+                        <p>• Pickup location: Golden Mais Farm, Calubian, Leyte</p>
+                        <p>• Please bring this order number: <strong>#{{ order.order_number }}</strong></p>
+                    {% else %}
+                        <p>• We'll prepare your order and schedule delivery to your address</p>
+                        <p>• Delivery within Calubian area usually takes 1-2 hours</p>
+                        <p>• Our delivery team will contact you before arrival</p>
+                    {% endif %}
+                    <p>• Payment will be collected upon {{ order.delivery_method }}</p>
+                </div>
+            </div>
+
+            <!-- Contact Information -->
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <h3 class="font-semibold text-blue-800 mb-2">Need Help?</h3>
+                <div class="text-sm text-blue-700">
+                    <p>Contact us at:</p>
+                    <p>📞 0963 118 6511</p>
+                    <p>📧 sillarroseann7@gmail.com</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row gap-4">
+                <a href="{% url 'track_order' order.order_number %}" 
+                   class="flex-1 bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition">
+                    <i class="fas fa-truck mr-2"></i>Track Your Order
+                </a>
+                <a href="{% url 'home' %}" 
+                   class="flex-1 bg-yellow-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-yellow-700 transition">
+                    Continue Shopping
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

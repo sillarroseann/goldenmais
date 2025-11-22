@@ -1,0 +1,26 @@
+IMPORTANT: Database Migration Commands
+
+After implementing the payment system, you need to run these commands to update your database:
+
+1. Create migration for the new Payment model:
+   python manage.py makemigrations core
+
+2. Apply the migration to your database:
+   python manage.py migrate
+
+3. (Optional) Create a superuser if you haven't already:
+   python manage.py createsuperuser
+
+4. (Optional) Collect static files if in production:
+   python manage.py collectstatic
+
+NOTES:
+- The Payment model has been added to core/models.py
+- This will create a new table to track payment transactions
+- All existing orders will continue to work normally
+- The new payment system is backward compatible
+
+TESTING:
+- Use the sandbox credentials provided in payment_settings.py
+- Test with PayMaya test cards before going live
+- Verify webhook functionality works correctly

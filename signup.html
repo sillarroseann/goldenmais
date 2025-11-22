@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Up | CornFarm WebApp</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  </head>
+  <body class="min-h-screen flex">
+    <!-- Left Side: Corn Image -->
+    <div
+      class="hidden md:flex w-1/2 bg-cover bg-center"
+      style="background-image: url('https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=800&q=80');"
+    ></div>
+
+    <!-- Right Side: Sign Up Form -->
+    <div
+      class="flex flex-col justify-center items-center w-full md:w-1/2 bg-gray-50 p-8"
+    >
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-3xl font-bold text-center text-green-800 mb-6">
+          Create an Account
+        </h2>
+
+        <p class="text-center text-gray-500 mb-6">
+          Join us today — it’s quick and easy!
+        </p>
+
+        <input
+          type="text"
+          id="name"
+          placeholder="Full Name"
+          class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+        />
+        <input
+          type="email"
+          id="email"
+          placeholder="Email"
+          class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+        />
+        <div class="relative mb-4">
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+          />
+          <button
+            type="button"
+            id="togglePassword"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+          >
+            <i class="fas fa-eye text-lg" id="eyeIcon"></i>
+          </button>
+        </div>
+        <div class="relative mb-6">
+          <input
+            type="password"
+            id="confirmPassword"
+            placeholder="Confirm Password"
+            class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+          />
+          <button
+            type="button"
+            id="toggleConfirmPassword"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+          >
+            <i class="fas fa-eye text-lg" id="eyeIconConfirm"></i>
+          </button>
+        </div>
+
+        <button
+          onclick="signup()"
+          class="w-full bg-green-800 hover:bg-green-800 text-white font-semibold py-2 rounded-lg transition"
+        >
+          Sign Up
+        </button>
+
+        <p class="mt-6 text-center text-gray-500">
+          Already have an account?
+          <a href="login.html" class="text-green-800 hover:underline">
+            Log in
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-elements">
+      <!-- Floating Home Button -->
+      <div class="fixed bottom-20 right-6 z-50">
+        <a href="index.html" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+          <i class="fas fa-home text-xl"></i>
+          <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Home</span>
+        </a>
+      </div>
+
+      <!-- Floating Login Button -->
+      <div class="fixed bottom-36 right-6 z-50">
+        <a href="login.html" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+          <i class="fas fa-sign-in-alt text-xl"></i>
+          <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Login</span>
+        </a>
+      </div>
+
+      <!-- Floating WhatsApp Contact -->
+      <div class="fixed bottom-6 right-6 z-50">
+        <a href="https://wa.me/639631186511" target="_blank" class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+          <i class="fab fa-whatsapp text-lg"></i>
+          <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Contact Us</span>
+        </a>
+      </div>
+
+      <!-- Floating Password Strength Indicator -->
+      <div class="fixed top-6 right-6 z-40">
+        <div id="passwordStrength" class="bg-gray-500 text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-all duration-500">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-shield-alt"></i>
+            <span id="strengthText" class="text-sm font-semibold">Password Strength</span>
+            <button onclick="closePasswordStrength()" class="ml-2 text-white hover:text-gray-200">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Success Message -->
+      <div class="fixed top-20 left-1/2 transform -translate-x-1/2 z-40">
+        <div id="successMessage" class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg transform -translate-y-full opacity-0 transition-all duration-500">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-check-circle"></i>
+            <span class="text-sm font-semibold">Account created successfully!</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Password show/hide functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const password = document.getElementById('password');
+        const confirmPassword = document.getElementById('confirmPassword');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleConfirmPassword = document.getElementById('toggleConfirmPassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        const eyeIconConfirm = document.getElementById('eyeIconConfirm');
+        
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+          const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+          password.setAttribute('type', type);
+          
+          // Toggle eye icon
+          if (type === 'text') {
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+          } else {
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+          }
+        });
+        
+        // Toggle confirm password visibility
+        toggleConfirmPassword.addEventListener('click', function() {
+          const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+          confirmPassword.setAttribute('type', type);
+          
+          // Toggle eye icon
+          if (type === 'text') {
+            eyeIconConfirm.classList.remove('fa-eye');
+            eyeIconConfirm.classList.add('fa-eye-slash');
+          } else {
+            eyeIconConfirm.classList.remove('fa-eye-slash');
+            eyeIconConfirm.classList.add('fa-eye');
+          }
+        });
+      });
+
+      function signup() {
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+        const confirmPassword = document
+          .getElementById("confirmPassword")
+          .value.trim();
+
+        if (!name || !email || !password || !confirmPassword) {
+          alert("Please fill in all fields!");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          alert("Passwords do not match!");
+          return;
+        }
+
+        // Show success message with floating animation
+        showSuccessMessage();
+        
+        // Redirect after showing success message
+        setTimeout(function() {
+          window.location.href = "login.html";
+        }, 2000);
+      }
+
+      // Floating Elements JavaScript
+      // Password strength checker
+      function checkPasswordStrength(password) {
+        let strength = 0;
+        let strengthText = '';
+        let strengthColor = '';
+
+        if (password.length >= 8) strength++;
+        if (/[A-Z]/.test(password)) strength++;
+        if (/[a-z]/.test(password)) strength++;
+        if (/[0-9]/.test(password)) strength++;
+        if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+        switch (strength) {
+          case 0:
+          case 1:
+            strengthText = 'Very Weak';
+            strengthColor = 'bg-red-500';
+            break;
+          case 2:
+            strengthText = 'Weak';
+            strengthColor = 'bg-orange-500';
+            break;
+          case 3:
+            strengthText = 'Fair';
+            strengthColor = 'bg-yellow-500';
+            break;
+          case 4:
+            strengthText = 'Good';
+            strengthColor = 'bg-blue-500';
+            break;
+          case 5:
+            strengthText = 'Strong';
+            strengthColor = 'bg-green-500';
+            break;
+        }
+
+        return { text: strengthText, color: strengthColor };
+      }
+
+      // Show password strength indicator
+      function showPasswordStrength(strength) {
+        const strengthIndicator = document.getElementById('passwordStrength');
+        const strengthText = document.getElementById('strengthText');
+        
+        strengthIndicator.className = `${strength.color} text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-0 transition-all duration-500`;
+        strengthText.textContent = `Password: ${strength.text}`;
+      }
+
+      // Close password strength indicator
+      function closePasswordStrength() {
+        const strengthIndicator = document.getElementById('passwordStrength');
+        strengthIndicator.classList.add('translate-x-full');
+        strengthIndicator.classList.remove('translate-x-0');
+      }
+
+      // Show success message
+      function showSuccessMessage() {
+        const successMessage = document.getElementById('successMessage');
+        successMessage.classList.remove('-translate-y-full', 'opacity-0');
+        successMessage.classList.add('translate-y-0', 'opacity-100');
+        
+        setTimeout(function() {
+          successMessage.classList.add('-translate-y-full', 'opacity-0');
+          successMessage.classList.remove('translate-y-0', 'opacity-100');
+        }, 3000);
+      }
+
+      // Add password strength checking to password input
+      document.getElementById('password').addEventListener('input', function() {
+        const password = this.value;
+        if (password.length > 0) {
+          const strength = checkPasswordStrength(password);
+          showPasswordStrength(strength);
+        } else {
+          closePasswordStrength();
+        }
+      });
+
+      // Hide password strength when password field loses focus after 3 seconds
+      document.getElementById('password').addEventListener('blur', function() {
+        setTimeout(function() {
+          closePasswordStrength();
+        }, 3000);
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,318 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Management Dashboard | Golden Mais{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome - Multiple CDN fallbacks for reliability -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    
+    <!-- Clean CSS for professional interface -->
+    <style>
+        /* FORCE PERMANENT ICON VISIBILITY */
+        .fas, .far, .fab, i[class*="fa"] {
+            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            font-weight: 900 !important;
+        }
+        
+        /* Force all icons to be visible */
+        i, .icon, [class*="fa-"] {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Force status badges to remain visible */
+        .bg-yellow-100, .bg-blue-100, .bg-green-100, .bg-purple-100, .bg-red-100,
+        .text-yellow-800, .text-blue-800, .text-green-800, .text-purple-800, .text-red-800 {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Ensure all buttons and links remain visible */
+        button, a, .btn {
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* Smooth transitions for better UX */
+        .transition-shadow {
+            transition: box-shadow 0.15s ease-in-out;
+        }
+        
+        /* Hover effects */
+        .hover\:shadow-md:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        /* Override any hiding styles */
+        .hidden {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        
+        /* FORCE MODAL BUTTON FUNCTIONALITY */
+        #cancelStatusBtn, #updateStatusBtn, button[type="button"], button[type="submit"] {
+            pointer-events: auto !important;
+            cursor: pointer !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 9999 !important;
+        }
+        
+        /* FORCE MODAL INPUT FUNCTIONALITY */
+        input, textarea, select {
+            pointer-events: auto !important;
+            cursor: text !important;
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 9999 !important;
+        }
+        
+        /* FORCE MODAL VISIBILITY */
+        .modal, #statusModal, #replyModal {
+            pointer-events: auto !important;
+            z-index: 50 !important;
+        }
+        
+        /* Floating sections for dashboard/stat cards */
+        .floating-section {
+            background-color: rgba(255, 255, 255, 0.97);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 45px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(8px);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .floating-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 25px 55px rgba(15, 23, 42, 0.12);
+        }
+
+        .floating-sticky {
+            position: sticky;
+            top: 5.5rem;
+            z-index: 5;
+        }
+
+        @media (max-width: 1024px) {
+            .floating-sticky {
+                position: static;
+                top: auto;
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-md">
+        <div class="flex justify-between items-center px-6 py-4">
+            <div class="flex items-center space-x-3">
+                <img src="{% static 'img/logo.png' %}" alt="Golden Mais Logo" class="w-10 h-10 object-cover rounded-full" />
+                <div>
+                    <h1 class="text-xl font-bold text-yellow-700">Golden Mais</h1>
+                    <p class="text-sm text-gray-500">Management Dashboard</p>
+                </div>
+            </div>
+
+            <div class="text-right">
+                <p class="text-xs uppercase tracking-wide text-gray-400">Welcome back</p>
+                <p class="text-lg font-semibold text-gray-800">{{ user.get_full_name|default:user.username }}</p>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="bg-gray-900 text-white w-64 min-h-screen">
+            <nav class="px-5 py-6 flex flex-col gap-2.5">
+                <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-[0.2em] mb-2">Main</h3>
+
+                <a href="{% url 'admin_dashboard' %}"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-300 border-gray-800 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                        <i class="fas fa-chart-line"></i>
+                    </span>
+                    <span class="font-semibold">Dashboard</span>
+                </a>
+
+                <div class="rounded-2xl border transition-all duration-200 {% if 'admin_product' in request.resolver_match.url_name %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-200 border-gray-800{% endif %} px-4 py-3">
+                    <div class="flex items-center justify-between">
+                        <a href="{% url 'admin_products' %}" class="flex items-center gap-3 flex-1">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 {% if 'admin_product' in request.resolver_match.url_name %}text-gray-900{% endif %}">
+                                <i class="fas fa-cubes"></i>
+                            </span>
+                            <div>
+                                <span class="font-semibold block">Products</span>
+                                <span class="text-xs opacity-70">Catalog & inventory</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'admin_product_add' %}" class="ml-3 text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30 hover:bg-white/10">
+                            + Add
+                        </a>
+                    </div>
+                </div>
+
+                <a href="{% url 'admin_orders' %}"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-200 {% if request.resolver_match.url_name == 'admin_orders' %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-300 border-gray-800 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                        <i class="fas fa-shopping-cart"></i>
+                    </span>
+                    <span class="font-semibold">Orders</span>
+                </a>
+
+                <a href="{% url 'admin_customers' %}"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-200 {% if request.resolver_match.url_name == 'admin_customers' %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-300 border-gray-800 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                        <i class="fas fa-users"></i>
+                    </span>
+                    <span class="font-semibold">Customers</span>
+                </a>
+
+                <a href="{% url 'admin_contacts' %}"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-200 {% if request.resolver_match.url_name == 'admin_contacts' %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-300 border-gray-800 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                        <i class="fas fa-envelope"></i>
+                    </span>
+                    <div class="flex-1 flex items-center justify-between">
+                        <span class="font-semibold">Messages</span>
+                        {% if pending_contacts|default:0 > 0 %}
+                            <span class="ml-3 bg-red-500 text-white text-[11px] px-2 py-0.5 rounded-full">{{ pending_contacts }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+
+                <a href="{% url 'admin_support_dashboard' %}"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-200 {% if 'admin_support' in request.resolver_match.url_name %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-300 border-gray-800 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                        <i class="fas fa-headset"></i>
+                    </span>
+                    <div class="flex-1 flex items-center justify-between">
+                        <span class="font-semibold">Support Tickets</span>
+                        {% if open_support_tickets|default:0 > 0 %}
+                            <span class="ml-3 bg-red-500 text-white text-[11px] px-2 py-0.5 rounded-full">{{ open_support_tickets }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+
+                <a href="{% url 'admin_feedback_dashboard' %}"
+                   class="flex items-center gap-3 px-4 py-2.5 rounded-2xl border transition-all duration-200 {% if 'admin_feedback' in request.resolver_match.url_name %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-300 border-gray-800 hover:bg-gray-800 hover:text-white{% endif %}">
+                    <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10">
+                        <i class="fas fa-comments"></i>
+                    </span>
+                    <div class="flex-1 flex items-center justify-between">
+                        <span class="font-semibold">Customer Feedback</span>
+                        {% if new_feedback_count|default:0 > 0 %}
+                            <span class="ml-3 bg-yellow-500 text-gray-900 text-[11px] px-2 py-0.5 rounded-full">{{ new_feedback_count }}</span>
+                        {% endif %}
+                    </div>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <div class="max-w-7xl mx-auto px-6 py-6">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        if (sidebarToggle && sidebar) {
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+            });
+        }
+    </script>
+
+    <script>
+        // AGGRESSIVE ICON AND STATUS VISIBILITY ENFORCEMENT
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 Starting permanent icon visibility enforcement...');
+            
+            function forceVisibility() {
+                // Force all Font Awesome icons to be visible
+                const icons = document.querySelectorAll('i, .fas, .far, .fab, [class*="fa-"]');
+                icons.forEach(icon => {
+                    icon.style.display = 'inline-block';
+                    icon.style.visibility = 'visible';
+                    icon.style.opacity = '1';
+                    icon.style.fontWeight = '900';
+                });
+                
+                // Force all status badges to remain visible
+                const statusElements = document.querySelectorAll('[class*="bg-yellow"], [class*="bg-blue"], [class*="bg-green"], [class*="bg-purple"], [class*="bg-red"]');
+                statusElements.forEach(element => {
+                    element.style.display = 'inline-block';
+                    element.style.visibility = 'visible';
+                    element.style.opacity = '1';
+                });
+                
+                // Force buttons and links to remain visible and functional
+                const buttons = document.querySelectorAll('button, a, .btn');
+                buttons.forEach(button => {
+                    button.style.display = 'inline-block';
+                    button.style.visibility = 'visible';
+                    button.style.opacity = '1';
+                    button.style.pointerEvents = 'auto';
+                    button.style.cursor = 'pointer';
+                    button.style.zIndex = '9999';
+                });
+                
+                // Force inputs and textareas to be functional
+                const inputs = document.querySelectorAll('input, textarea, select');
+                inputs.forEach(input => {
+                    input.style.pointerEvents = 'auto';
+                    input.style.cursor = input.tagName.toLowerCase() === 'textarea' || input.type === 'text' || input.type === 'email' ? 'text' : 'pointer';
+                    input.style.zIndex = '9999';
+                    input.disabled = false;
+                    input.readOnly = false;
+                });
+                
+                // Remove hidden classes
+                const hiddenElements = document.querySelectorAll('.hidden, .invisible, .opacity-0');
+                hiddenElements.forEach(element => {
+                    if (!element.textContent.includes('success') && !element.textContent.includes('error')) {
+                        element.classList.remove('hidden', 'invisible', 'opacity-0');
+                        element.style.display = 'block';
+                        element.style.visibility = 'visible';
+                        element.style.opacity = '1';
+                    }
+                });
+            }
+            
+            // Run immediately
+            forceVisibility();
+            
+            // Run every 500ms to catch any dynamic changes
+            setInterval(forceVisibility, 500);
+            
+            // Monitor DOM changes
+            const observer = new MutationObserver(forceVisibility);
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+            
+            console.log('✅ Permanent icon visibility enforcement active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,399 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Golden Mais{% endblock %}</title>
+    <meta name="description" content="Golden Mais delivers freshly harvested sweet corn, farm goods, and seasonal bundles with nationwide delivery and pickup options.">
+    <meta name="keywords" content="Golden Mais, sweet corn, farm fresh produce, Leyte, online store, delivery">
+    <meta name="author" content="Golden Mais">
+    <meta name="theme-color" content="#facc15">
+    <link rel="canonical" href="{{ request.build_absolute_uri|default:'https://goldenmais.com' }}">
+    <meta property="og:title" content="Golden Mais | Farm-Fresh Sweet Corn">
+    <meta property="og:description" content="Shop freshly harvested sweet corn, curated bundles, and seasonal farm goods from Golden Mais.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ request.build_absolute_uri|default:'https://goldenmais.com' }}">
+    <meta property="og:image" content="{{ request.build_absolute_uri|default:'https://goldenmais.com' }}static/img/logo.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Golden Mais | Farm-Fresh Sweet Corn">
+    <meta name="twitter:description" content="Fresh corn, bundles, and farm goods delivered to your doorstep.">
+    <meta name="twitter:image" content="{{ request.build_absolute_uri|default:'https://goldenmais.com' }}static/img/logo.png">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'img/logo.png' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* Improve dropdown hover behavior */
+        .dropdown-group::before {
+            content: '';
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 100%;
+            height: 4px;
+            background: transparent;
+            z-index: 40;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="font-sans bg-gray-50">
+    <!-- Header / Navbar -->
+    <header class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <img src="{% static 'img/logo.png' %}" alt="Golden Mais Logo" class="w-10 h-10 object-cover rounded-full" />
+            <span class="text-2xl font-bold text-yellow-700">Golden Mais</span>
+        </div>
+
+        <nav class="hidden md:flex space-x-6 items-center">
+            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">Home</a>
+            <a href="{% url 'products' %}" class="{% if request.resolver_match.url_name == 'products' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">Products</a>
+            <a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">Contact</a>
+            <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">About</a>
+            
+            <!-- Shopping Cart - Always visible like common online shops -->
+            <a href="{% if user.is_authenticated %}{% url 'cart' %}{% else %}{% url 'login' %}{% endif %}" class="text-gray-700 hover:text-yellow-700 relative flex items-center px-2" title="Shopping Cart">
+                <span class="text-xl cart-icon-target">🛒</span>
+                <span class="cart-count-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 items-center justify-center font-semibold {% if user.is_authenticated and cart_items_count > 0 %}flex{% else %}hidden{% endif %}"
+                      data-count="{{ cart_items_count|default:0 }}" data-visible-class="flex">
+                    {{ cart_items_count|default:0 }}
+                </span>
+            </a>
+            
+            {% if user.is_authenticated %}
+                <div class="relative group dropdown-group">
+                    <button class="text-gray-700 hover:text-yellow-700 flex items-center px-2 py-2">
+                        <i class="fas fa-user mr-1"></i>
+                        {{ user.get_full_name|default:user.username }}
+                        <i class="fas fa-chevron-down ml-1"></i>
+                    </button>
+                    <div class="absolute right-0 mt-0 w-56 bg-white rounded-md shadow-lg py-1 z-50 hidden group-hover:block border border-gray-200" style="top: 100%; margin-top: -2px;">
+                        
+                        <a href="{% url 'my_messages' %}" class="relative flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 {% if request.path == '/messages/' %}bg-gray-100 font-semibold{% endif %}">
+                            <span class="text-xl">✉️</span>
+                            <span>Messages</span>
+                            {% if contact_unread_count %}
+                            <span class="ml-auto inline-flex items-center justify-center h-5 min-w-[1.25rem] px-1 text-xs font-semibold bg-red-500 text-white rounded-full">
+                                {{ contact_unread_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+
+                        <a href="{% url 'my_orders_all' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-clipboard-list mr-2"></i>Order Status
+                        </a>
+
+                        <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-id-card mr-2"></i>Profile Information
+                        </a>
+
+                        <a href="{% url 'customer_support' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                            <i class="fas fa-headset mr-2"></i>Support & Feedback
+                        </a>
+                        
+                        <div class="border-t border-gray-200 my-1"></div>
+                        <form method="post" action="{% url 'logout' %}" class="block">
+                            {% csrf_token %}
+                            <button type="submit" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'signup' %}
+                    <a href="{% url 'login' %}" class="text-gray-700 hover:text-yellow-700">Login</a>
+                    {% if request.resolver_match.url_name != 'home' %}
+                        <a href="{% url 'signup' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">Sign Up</a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </nav>
+
+        <!-- Mobile menu button -->
+        <button class="md:hidden text-gray-700" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars text-xl"></i>
+        </button>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div id="mobileMenu" class="hidden md:hidden bg-white shadow-md">
+        <div class="px-6 py-4 space-y-2">
+            <a href="{% url 'home' %}" class="block text-gray-700 hover:text-yellow-700">Home</a>
+            <a href="{% url 'products' %}" class="block text-gray-700 hover:text-yellow-700">Products</a>
+            <a href="{% url 'contact' %}" class="block text-gray-700 hover:text-yellow-700">Contact</a>
+            <a href="{% url 'about' %}" class="block text-gray-700 hover:text-yellow-700">About</a>
+            
+            <!-- Shopping Cart - Always visible in mobile menu -->
+            <a href="{% if user.is_authenticated %}{% url 'cart' %}{% else %}{% url 'login' %}{% endif %}" class="block text-gray-700 hover:text-yellow-700 flex items-center">
+                <span class="mr-2 cart-icon-target">🛒</span>Shopping Cart
+                <span class="cart-count-badge bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-2 {% if user.is_authenticated and cart_items_count > 0 %}inline-flex{% else %}hidden{% endif %}"
+                      data-count="{{ cart_items_count|default:0 }}" data-visible-class="inline-flex">
+                    {{ cart_items_count|default:0 }}
+                </span>
+            </a>
+            
+            {% if user.is_authenticated %}
+                <a href="{% url 'profile' %}" class="block text-gray-700 hover:text-yellow-700">Profile</a>
+                <form method="post" action="{% url 'logout' %}" class="block">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full text-left text-gray-700 hover:text-yellow-700">Logout</button>
+                </form>
+            {% else %}
+                {% if request.resolver_match.url_name != 'login' and request.resolver_match.url_name != 'signup' %}
+                    <a href="{% url 'login' %}" class="block text-gray-700 hover:text-yellow-700">Login</a>
+                    {% if request.resolver_match.url_name != 'home' %}
+                        <a href="{% url 'signup' %}" class="block text-gray-700 hover:text-yellow-700">Sign Up</a>
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Messages -->
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-yellow-100 text-gray-800 py-12 px-8 mt-16">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-10">
+            <!-- Brand Section -->
+            <div>
+                <h3 class="text-2xl font-bold text-yellow-700 mb-3">Golden Mais 🌽</h3>
+                <p class="text-gray-700 text-sm">
+                    Freshly harvested sweet corn, straight from our fields to your table. <br />
+                    <span class="italic text-yellow-700">Eat fresh. Eat local.</span>
+                </p>
+            </div>
+
+            <!-- Contact Info -->
+            <div>
+                <h4 class="font-semibold text-yellow-700 mb-3">Contact Information</h4>
+                <p class="text-sm">📍 Sitio Dose Brgy. Laray, Calubian, Leyte</p>
+                <p class="text-sm">📞 0963 118 6511</p>
+                <p class="text-sm">📧 sillarroseann7@gmail.com</p>
+                <p class="text-sm">🕒 Weekdays: 8AM - 5PM</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="font-semibold text-yellow-700 mb-3">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{% url 'home' %}" class="hover:text-yellow-700">Home</a></li>
+                    <li><a href="{% url 'about' %}" class="hover:text-yellow-700">About</a></li>
+                    <li><a href="{% url 'products' %}" class="hover:text-yellow-700">Products</a></li>
+                    <li><a href="{% url 'contact' %}" class="hover:text-yellow-700">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Payment & Socials -->
+            <div>
+                <h4 class="font-semibold text-yellow-700 mb-3">Payment Methods</h4>
+                <div class="flex flex-wrap items-center gap-3 mb-4">
+                    <button onclick="showPaymentInfo('gcash')" class="bg-white px-3 py-1 rounded-md shadow text-xs hover:bg-blue-50 hover:text-blue-700 transition cursor-pointer">
+                        <i class="fas fa-mobile-alt mr-1"></i>GCash
+                    </button>
+                    <button onclick="showPaymentInfo('maya')" class="bg-white px-3 py-1 rounded-md shadow text-xs hover:bg-green-50 hover:text-green-700 transition cursor-pointer">
+                        <i class="fas fa-credit-card mr-1"></i>Maya
+                    </button>
+                    <button onclick="showPaymentInfo('cod')" class="bg-white px-3 py-1 rounded-md shadow text-xs hover:bg-yellow-50 hover:text-yellow-700 transition cursor-pointer">
+                        <i class="fas fa-money-bill-wave mr-1"></i>COD
+                    </button>
+                </div>
+                
+                <!-- Payment Info Modal -->
+                <div id="payment-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+                    <div class="bg-white rounded-lg p-6 max-w-md mx-4 relative">
+                        <button onclick="closePaymentInfo()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                        
+                        <div id="payment-content">
+                            <!-- Payment info will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+                <p class="text-sm text-gray-700 mb-4">🚚 Free Local Delivery | Pickup Available</p>
+                <div class="flex space-x-4 text-xl text-yellow-700">
+                    <a href="https://www.facebook.com/GoldenMaisOfficial" target="_blank" rel="noopener noreferrer" 
+                       class="hover:text-gray-700 transition-colors duration-200" title="Follow us on Facebook">
+                        <i class="fab fa-facebook"></i>
+                    </a>
+                    <a href="https://www.instagram.com/goldenmais_official" target="_blank" rel="noopener noreferrer" 
+                       class="hover:text-gray-700 transition-colors duration-200" title="Follow us on Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="https://www.tiktok.com/@goldenmais_official" target="_blank" rel="noopener noreferrer" 
+                       class="hover:text-gray-700 transition-colors duration-200" title="Follow us on TikTok">
+                        <i class="fab fa-tiktok"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center text-sm text-gray-600 mt-10 border-t pt-6">
+            © 2025 <span class="font-semibold text-yellow-700">Golden Mais</span>. All rights reserved. <br />
+            Designed with ❤️ in the Philippines.
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Improve dropdown behavior
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdownGroups = document.querySelectorAll('.group');
+            
+            dropdownGroups.forEach(group => {
+                let timeoutId;
+                
+                group.addEventListener('mouseenter', function() {
+                    clearTimeout(timeoutId);
+                    const dropdown = this.querySelector('.group-hover\\:block');
+                    if (dropdown) {
+                        dropdown.classList.remove('hidden');
+                    }
+                });
+                
+                group.addEventListener('mouseleave', function() {
+                    const dropdown = this.querySelector('.group-hover\\:block');
+                    if (dropdown) {
+                        timeoutId = setTimeout(() => {
+                            dropdown.classList.add('hidden');
+                        }, 150); // 150ms delay before hiding
+                    }
+                });
+            });
+        });
+
+        // Payment info modal functions
+        function showPaymentInfo(method) {
+            const modal = document.getElementById('payment-modal');
+            const content = document.getElementById('payment-content');
+            
+            let paymentInfo = '';
+            
+            switch(method) {
+                case 'gcash':
+                    paymentInfo = `
+                        <div class="text-center">
+                            <div class="text-blue-600 text-4xl mb-4">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">GCash Payment</h3>
+                            <div class="text-left space-y-3">
+                                <p><strong>Account Name:</strong> Golden Mais</p>
+                                <p><strong>Mobile Number:</strong> 0963 118 6511</p>
+                                <div class="mt-4">
+                                    <a href="https://gcash.app/pay" target="_blank" 
+                                       class="block w-full bg-blue-600 text-white text-center py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors mb-3">
+                                        <i class="fas fa-mobile-alt mr-2"></i>Open GCash App
+                                    </a>
+                                    <p class="text-sm text-gray-600 mb-2"><strong>Note:</strong> For exact payment amounts, please proceed to checkout.</p>
+                                </div>
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Send payment and screenshot the confirmation for verification.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'maya':
+                    paymentInfo = `
+                        <div class="text-center">
+                            <div class="text-green-600 text-4xl mb-4">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Maya (PayMaya) Payment</h3>
+                            <div class="text-left space-y-3">
+                                <p><strong>Account Name:</strong> Golden Mais</p>
+                                <p><strong>Mobile Number:</strong> 0963 118 6511</p>
+                                <div class="mt-4">
+                                    <a href="https://maya.ph/pay" target="_blank" 
+                                       class="block w-full bg-green-600 text-white text-center py-3 px-4 rounded-lg hover:bg-green-700 transition-colors mb-3">
+                                        <i class="fas fa-credit-card mr-2"></i>Open Maya App
+                                    </a>
+                                    <p class="text-sm text-gray-600 mb-2"><strong>Note:</strong> For exact payment amounts, please proceed to checkout.</p>
+                                </div>
+                                <p class="text-sm text-gray-600">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Send payment and screenshot the confirmation for verification.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+                case 'cod':
+                    paymentInfo = `
+                        <div class="text-center">
+                            <div class="text-yellow-600 text-4xl mb-4">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">Cash on Delivery</h3>
+                            <div class="text-left space-y-2">
+                                <p><strong>Payment Method:</strong> Cash</p>
+                                <p><strong>When:</strong> Upon delivery or pickup</p>
+                                <p><strong>Location:</strong> Sitio Dose Brgy. Laray, Calubian, Leyte</p>
+                                <p class="text-sm text-gray-600 mt-4">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Prepare exact amount when possible. Change will be provided if needed.
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+            }
+            
+            content.innerHTML = paymentInfo;
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closePaymentInfo() {
+            const modal = document.getElementById('payment-modal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            const modal = document.getElementById('payment-modal');
+            if (e.target === modal) {
+                closePaymentInfo();
+            }
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        function updateCartBadge(newCount) {
+            const badges = document.querySelectorAll('.cart-count-badge');
+            badges.forEach(badge => {
+                const visibleClass = badge.dataset.visibleClass || 'flex';
+                badge.textContent = newCount;
+                badge.dataset.count = newCount;
+                if (parseInt(newCount, 10) > 0) {
+                    badge.classList.remove('hidden');
+                    badge.classList.add(visibleClass);
+                } else {
+                    badge.classList.remove(visibleClass);
+                    badge.classList.add('hidden');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

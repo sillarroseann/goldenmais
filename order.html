@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Management</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body onload="checkSession(); loadOrders();">
+  <aside class="sidebar">
+    <div class="logo">LOGO</div>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="product.html">Product</a>
+      <a href="order.html">Order</a>
+      <a href="report.html">Report</a>
+      <a href="contact.html">Contact</a>
+      <a href="#" onclick="logout()">Log Out</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Order Management</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Delivery</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="orderTable"></tbody>
+    </table>
+
+    <h2>Add Order</h2>
+    <input type="text" id="orderCustomer" placeholder="Customer Name" />
+    <input type="date" id="orderDate" />
+    <input type="text" id="orderDelivery" placeholder="Tracking Info" />
+    <select id="orderStatus">
+      <option value="Pending">Pending</option>
+      <option value="Delivered">Delivered</option>
+    </select>
+    <button onclick="addOrder()">Add</button>
+  </main>
+
+  <!-- Footer with Social Media Icons -->
+  <footer class="bg-yellow-100 text-gray-800 py-8 px-8 mt-10">
+    <div class="max-w-4xl mx-auto text-center">
+      <h3 class="text-2xl font-bold text-yellow-700 mb-4">Golden Mais 🌽</h3>
+      <p class="text-gray-700 text-sm mb-6">
+        Freshly harvested sweet corn, straight from our fields to your table.
+      </p>
+      
+      <!-- Social Media Icons Section -->
+      <div class="mb-6">
+        <h4 class="font-semibold text-yellow-700 mb-4">Follow Us</h4>
+        <div class="flex justify-center space-x-4">
+          <!-- Facebook -->
+          <a href="https://www.facebook.com/GoldenMaisOfficial" target="_blank" rel="noopener noreferrer" 
+             class="bg-blue-600 text-white p-4 rounded-full hover:bg-blue-700 hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer" 
+             title="Follow us on Facebook"
+             onclick="showSocialFeedback('Facebook')">
+            <i class="fab fa-facebook text-2xl"></i>
+          </a>
+          
+          <!-- Instagram -->
+          <a href="https://www.instagram.com/goldenmais_official" target="_blank" rel="noopener noreferrer" 
+             class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 rounded-full hover:from-purple-600 hover:to-pink-600 hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer" 
+             title="Follow us on Instagram"
+             onclick="showSocialFeedback('Instagram')">
+            <i class="fab fa-instagram text-2xl"></i>
+          </a>
+          
+          <!-- TikTok -->
+          <a href="https://www.tiktok.com/@goldenmais_official" target="_blank" rel="noopener noreferrer" 
+             class="bg-black text-white p-4 rounded-full hover:bg-gray-800 hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl cursor-pointer" 
+             title="Follow us on TikTok"
+             onclick="showSocialFeedback('TikTok')">
+            <i class="fab fa-tiktok text-2xl"></i>
+          </a>
+        </div>
+      </div>
+      
+      <div class="text-center text-sm text-gray-600 border-t pt-4">
+        © 2025 <span class="font-semibold text-yellow-700">Golden Mais</span>. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Action Buttons -->
+  <div class="floating-elements">
+    <!-- Floating Home Button -->
+    <div class="fixed bottom-20 right-6 z-50">
+      <a href="index.html" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fas fa-home text-xl"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Home</span>
+      </a>
+    </div>
+
+    <!-- Floating Refresh Orders Button -->
+    <div class="fixed bottom-36 right-6 z-50">
+      <button onclick="refreshOrders()" class="bg-blue-600 hover:bg-blue-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fas fa-sync-alt text-xl"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Refresh</span>
+      </button>
+    </div>
+
+    <!-- Floating Export Button -->
+    <div class="fixed bottom-52 right-6 z-50">
+      <button onclick="exportOrders()" class="bg-yellow-600 hover:bg-yellow-700 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fas fa-download text-lg"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Export</span>
+      </button>
+    </div>
+
+    <!-- Floating WhatsApp Contact -->
+    <div class="fixed bottom-6 right-6 z-50">
+      <a href="https://wa.me/639631186511" target="_blank" class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+        <i class="fab fa-whatsapp text-lg"></i>
+        <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Support</span>
+      </a>
+    </div>
+  </div>
+
+  <script src="js/session.js"></script>
+  <script src="js/order.js"></script>
+  
+  <script>
+    // Floating Elements JavaScript for Order Management
+    function refreshOrders() {
+      // Show loading animation
+      const refreshBtn = document.querySelector('[onclick="refreshOrders()"] i');
+      refreshBtn.classList.add('fa-spin');
+      
+      // Simulate refresh (replace with actual refresh logic)
+      setTimeout(() => {
+        if (typeof loadOrders === 'function') {
+          loadOrders();
+        }
+        refreshBtn.classList.remove('fa-spin');
+        showNotification('Orders refreshed successfully!', 'success');
+      }, 1000);
+    }
+
+    function exportOrders() {
+      // Create CSV content (basic example)
+      const table = document.getElementById('orderTable');
+      let csvContent = 'ID,Customer,Date,Delivery,Status\n';
+      
+      for (let row of table.rows) {
+        const cells = Array.from(row.cells).slice(0, -1); // Exclude actions column
+        csvContent += cells.map(cell => cell.textContent).join(',') + '\n';
+      }
+      
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'orders_' + new Date().toISOString().split('T')[0] + '.csv';
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      showNotification('Orders exported successfully!', 'success');
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+      
+      notification.className = `fixed top-6 right-6 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50 transform translate-x-full transition-transform duration-500`;
+      notification.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+          <span class="text-sm font-semibold">${message}</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+      }, 100);
+
+      // Animate out and remove
+      setTimeout(() => {
+        notification.classList.add('translate-x-full');
+        notification.classList.remove('translate-x-0');
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 500);
+      }, 3000);
+    }
+
+    function logout() {
+      if (confirm("Are you sure you want to log out?")) {
+        window.location.href = "login.html";
+      }
+    }
+
+    // Social Media Click Feedback
+    function showSocialFeedback(platform) {
+      // Create and show feedback notification
+      const notification = document.createElement('div');
+      notification.className = 'fixed top-6 left-1/2 transform -translate-x-1/2 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 opacity-0 transition-all duration-500';
+      notification.innerHTML = `
+        <div class="flex items-center space-x-2">
+          <i class="fas fa-external-link-alt"></i>
+          <span class="text-sm font-semibold">Opening ${platform}... 🚀</span>
+        </div>
+      `;
+      document.body.appendChild(notification);
+
+      // Animate in
+      setTimeout(() => {
+        notification.classList.remove('opacity-0');
+        notification.classList.add('opacity-100');
+      }, 100);
+
+      // Animate out and remove
+      setTimeout(() => {
+        notification.classList.add('opacity-0');
+        notification.classList.remove('opacity-100');
+        setTimeout(() => {
+          if (document.body.contains(notification)) {
+            document.body.removeChild(notification);
+          }
+        }, 500);
+      }, 2500);
+
+      // Log the click for analytics
+      console.log(`User clicked on ${platform} social media link`);
+    }
+
+    // Test function to verify links are working
+    function testSocialLinks() {
+      console.log('Testing social media links...');
+      console.log('Facebook: https://www.facebook.com/GoldenMaisOfficial');
+      console.log('Instagram: https://www.instagram.com/goldenmais_official');
+      console.log('TikTok: https://www.tiktok.com/@goldenmais_official');
+    }
+
+    // Call test function when page loads
+    window.addEventListener('load', function() {
+      testSocialLinks();
+      console.log('Social media icons are ready and clickable!');
+    });
+  </script>
+</body>
+</html>

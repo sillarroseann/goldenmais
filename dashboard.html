@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Mais Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Multiple Font Awesome sources for reliability -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" crossorigin="anonymous">
+    
+    <style>
+        /* Force icons to be visible with CSS */
+        .category-icon {
+            font-size: 24px !important;
+            display: inline-block !important;
+            width: 24px !important;
+            height: 24px !important;
+            text-align: center !important;
+        }
+        
+        /* Fallback using CSS content */
+        .icon-products::before { content: "📦" !important; font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; }
+        .icon-customers::before { content: "👥" !important; font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; }
+        .icon-orders::before { content: "🛒" !important; font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; }
+        .icon-messages::before { content: "✉️" !important; font-family: "Apple Color Emoji", "Segoe UI Emoji", sans-serif !important; }
+        
+        /* Ensure Font Awesome works if loaded */
+        .fas.fa-box::before { content: "\f466" !important; }
+        .fas.fa-users::before { content: "\f0c0" !important; }
+        .fas.fa-shopping-cart::before { content: "\f07a" !important; }
+        .fas.fa-envelope::before { content: "\f0e0" !important; }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-md">
+        <div class="flex justify-between items-center px-6 py-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center">
+                    <span class="text-white font-bold text-lg">GM</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-yellow-700">Golden Mais</h1>
+                    <p class="text-sm text-gray-500">Management Dashboard</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <span class="text-gray-700">Welcome, Admin</span>
+                <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
+                    🚪 Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex">
+        <!-- Sidebar -->
+        <aside class="bg-gray-800 text-white w-64 min-h-screen">
+            <nav class="mt-6">
+                <div class="px-6 py-3">
+                    <h3 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Main</h3>
+                </div>
+                
+                <a href="#" class="flex items-center px-6 py-3 text-white bg-gray-700">
+                    <span class="mr-3 text-lg">📊</span>
+                    Dashboard
+                </a>
+                <a href="product.html" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white">
+                    <span class="mr-3 text-lg">📦</span>
+                    Products
+                </a>
+                <a href="order.html" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white">
+                    <span class="mr-3 text-lg">🛒</span>
+                    Orders
+                </a>
+                <a href="#" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white">
+                    <span class="mr-3 text-lg">👥</span>
+                    Customers
+                </a>
+                <a href="contact.html" class="flex items-center px-6 py-3 text-gray-300 hover:bg-gray-700 hover:text-white">
+                    <span class="mr-3 text-lg">✉️</span>
+                    Messages
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <!-- Dashboard Header -->
+            <div class="mb-6">
+                <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+                <p class="text-gray-600">Welcome to Golden Mais Admin Panel</p>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <!-- Total Products -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center">
+                        <div class="p-4 rounded-full bg-blue-100 text-blue-600">
+                            <!-- Multiple icon options for maximum reliability -->
+                            <i class="fas fa-box category-icon" style="font-size: 24px;"></i>
+                            <span class="icon-products category-icon" style="display: none; font-size: 24px;">📦</span>
+                            <span class="backup-icon" style="display: none;">📦</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Products</p>
+                            <p class="text-3xl font-bold text-gray-900">10</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Customers -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center">
+                        <div class="p-4 rounded-full bg-green-100 text-green-600">
+                            <i class="fas fa-users category-icon" style="font-size: 24px;"></i>
+                            <span class="icon-customers category-icon" style="display: none; font-size: 24px;">👥</span>
+                            <span class="backup-icon" style="display: none;">👥</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Customers</p>
+                            <p class="text-3xl font-bold text-gray-900">8</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Total Orders -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center">
+                        <div class="p-4 rounded-full bg-yellow-100 text-yellow-600">
+                            <i class="fas fa-shopping-cart category-icon" style="font-size: 24px;"></i>
+                            <span class="icon-orders category-icon" style="display: none; font-size: 24px;">🛒</span>
+                            <span class="backup-icon" style="display: none;">🛒</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                            <p class="text-3xl font-bold text-gray-900">11</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Messages -->
+                <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                    <div class="flex items-center">
+                        <div class="p-4 rounded-full bg-red-100 text-red-600">
+                            <i class="fas fa-envelope category-icon" style="font-size: 24px;"></i>
+                            <span class="icon-messages category-icon" style="display: none; font-size: 24px;">✉️</span>
+                            <span class="backup-icon" style="display: none;">✉️</span>
+                        </div>
+                        <div class="ml-4">
+                            <p class="text-sm font-medium text-gray-600">Pending Messages</p>
+                            <p class="text-3xl font-bold text-gray-900">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <a href="product.html" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="text-blue-600 mr-3 text-xl">➕</span>
+                        <span class="text-sm font-medium">Add Product</span>
+                    </a>
+                    <a href="order.html" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="text-green-600 mr-3 text-xl">📋</span>
+                        <span class="text-sm font-medium">View Orders</span>
+                    </a>
+                    <a href="contact.html" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="text-yellow-600 mr-3 text-xl">✉️</span>
+                        <span class="text-sm font-medium">Messages</span>
+                    </a>
+                    <a href="#" class="flex items-center p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                        <span class="text-purple-600 mr-3 text-xl">👤</span>
+                        <span class="text-sm font-medium">Add Admin</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Status Indicator -->
+            <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center">
+                    <span class="text-green-600 mr-2 text-xl">✅</span>
+                    <span class="text-green-800 font-medium">Dashboard icons are now permanent and always visible!</span>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🌽 Golden Mais Dashboard Loaded');
+            
+            // Simple, reliable icon fallback system
+            function ensureIconsVisible() {
+                // Wait a moment for Font Awesome to load
+                setTimeout(() => {
+                    const fontAwesomeIcons = document.querySelectorAll('.fas');
+                    let fontAwesomeWorking = false;
+                    
+                    // Check if any Font Awesome icon is actually displaying
+                    fontAwesomeIcons.forEach(icon => {
+                        const computedStyle = window.getComputedStyle(icon, ':before');
+                        const content = computedStyle.getPropertyValue('content');
+                        if (content && content !== 'none' && content !== '""') {
+                            fontAwesomeWorking = true;
+                        }
+                    });
+                    
+                    if (!fontAwesomeWorking) {
+                        console.log('🔄 Font Awesome not working, showing emoji fallbacks...');
+                        
+                        // Hide Font Awesome icons and show emoji fallbacks
+                        document.querySelectorAll('.fas').forEach(icon => {
+                            icon.style.display = 'none';
+                        });
+                        
+                        document.querySelectorAll('.icon-products, .icon-customers, .icon-orders, .icon-messages').forEach(fallback => {
+                            fallback.style.display = 'inline-block';
+                        });
+                        
+                        // Show backup icons if needed
+                        document.querySelectorAll('.backup-icon').forEach(backup => {
+                            backup.style.display = 'inline-block';
+                        });
+                    } else {
+                        console.log('✅ Font Awesome is working properly');
+                    }
+                }, 1000);
+            }
+            
+            // Run the icon check
+            ensureIconsVisible();
+            
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.bg-white.rounded-lg.shadow-lg');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+            
+            console.log('✅ Dashboard ready with permanent icons!');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login - Show/Hide Password</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-2xl font-bold text-center text-green-800 mb-6">
+            Test Login - Show/Hide Password
+        </h2>
+
+        <div class="relative mb-6">
+            <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+            />
+            <button
+                type="button"
+                id="togglePassword"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+            >
+                <i class="fas fa-eye text-lg" id="eyeIcon"></i>
+            </button>
+        </div>
+
+        <p class="text-sm text-gray-600 text-center">
+            Click the eye icon to toggle password visibility
+        </p>
+    </div>
+
+    <script>
+        // Password show/hide functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const password = document.getElementById('password');
+            const togglePassword = document.getElementById('togglePassword');
+            const eyeIcon = document.getElementById('eyeIcon');
+            
+            console.log('Script loaded. Elements found:', {
+                password: !!password,
+                togglePassword: !!togglePassword,
+                eyeIcon: !!eyeIcon
+            });
+            
+            // Toggle password visibility
+            togglePassword.addEventListener('click', function() {
+                console.log('Toggle button clicked');
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                console.log('Password type changed to:', type);
+                
+                // Toggle eye icon
+                if (type === 'text') {
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                } else {
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

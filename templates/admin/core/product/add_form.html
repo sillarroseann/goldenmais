@@ -1,0 +1,47 @@
+{% extends "admin/core/product/change_form.html" %}
+
+{% block content_title %}
+<h1 style="color: #374151; font-size: 24px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center;">
+    <i class="fas fa-plus-circle" style="color: #f59e0b; margin-right: 10px;"></i>
+    Add New Product
+</h1>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<style>
+    /* Additional styling for add form */
+    .form-row .required label:after {
+        content: " *";
+        color: #dc2626;
+        font-weight: bold;
+    }
+    
+    .help-text {
+        background-color: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 10px 15px;
+        margin: 15px 0;
+        border-radius: 0 4px 4px 0;
+        font-size: 13px;
+        color: #1e40af;
+    }
+    
+    .field-group {
+        background-color: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .field-group h3 {
+        color: #475569;
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #cbd5e1;
+    }
+</style>
+{% endblock %}

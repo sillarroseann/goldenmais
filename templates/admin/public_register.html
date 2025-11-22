@@ -1,0 +1,186 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Registration | Golden Mais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full bg-white rounded-lg shadow-md p-8">
+        <!-- Logo and Title -->
+        <div class="text-center mb-8">
+            <img src="{% static 'img/logo.png' %}" alt="Golden Mais Logo" class="w-16 h-16 mx-auto mb-4 rounded-full">
+            <h1 class="text-2xl font-bold text-gray-900">Staff Registration</h1>
+            <p class="text-gray-600 mt-2">Create your staff account</p>
+        </div>
+
+        <!-- Registration Form -->
+        <form method="post">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-user mr-2"></i>Username
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-envelope mr-2"></i>Email
+                    </label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-id-card mr-2"></i>First Name
+                    </label>
+                    {{ form.first_name }}
+                    {% if form.first_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-id-card mr-2"></i>Last Name
+                    </label>
+                    {{ form.last_name }}
+                    {% if form.last_name.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.last_name.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Password
+                    </label>
+                    <div class="relative">
+                        {{ form.password1 }}
+                        <button type="button" id="togglePassword1" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10">
+                            <i class="fas fa-eye text-lg" id="eyeIcon1"></i>
+                        </button>
+                    </div>
+                    {% if form.password1.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password1.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                        <i class="fas fa-lock mr-2"></i>Confirm Password
+                    </label>
+                    <div class="relative">
+                        {{ form.password2 }}
+                        <button type="button" id="togglePassword2" 
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10">
+                            <i class="fas fa-eye text-lg" id="eyeIcon2"></i>
+                        </button>
+                    </div>
+                    {% if form.password2.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.password2.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-200">
+                    <i class="fas fa-user-plus mr-2"></i>Create Admin Account
+                </button>
+            </div>
+        </form>
+
+        <!-- Footer Links -->
+        <div class="mt-6 text-center space-y-2">
+            <p class="text-sm text-gray-600">
+                Already have an account?
+                <a href="{% url 'admin_login' %}" class="text-blue-600 hover:text-blue-800">Login here</a>
+            </p>
+            <p class="text-sm text-gray-600">
+                <a href="/" class="text-yellow-600 hover:text-yellow-800">
+                    <i class="fas fa-arrow-left mr-1"></i>Back to Website
+                </a>
+            </p>
+        </div>
+
+    </div>
+
+    <style>
+        /* Style the Django form fields */
+        input[type="text"], input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 0.5rem 2.5rem 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            outline: none;
+        }
+        input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
+            box-shadow: 0 0 0 2px #10b981;
+            border-color: #10b981;
+            outline: none;
+        }
+        /* Adjust padding for non-password fields */
+        input[type="text"], input[type="email"] {
+            padding-right: 0.75rem;
+        }
+    </style>
+
+    <script>
+    // Password show/hide functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get form elements by their Django-generated IDs
+        const password1 = document.querySelector('input[name="password1"]');
+        const password2 = document.querySelector('input[name="password2"]');
+        const togglePassword1 = document.getElementById('togglePassword1');
+        const togglePassword2 = document.getElementById('togglePassword2');
+        const eyeIcon1 = document.getElementById('eyeIcon1');
+        const eyeIcon2 = document.getElementById('eyeIcon2');
+        
+        // Toggle password1 visibility
+        if (togglePassword1 && password1) {
+            togglePassword1.addEventListener('click', function() {
+                const type = password1.getAttribute('type') === 'password' ? 'text' : 'password';
+                password1.setAttribute('type', type);
+                
+                // Toggle eye icon
+                if (type === 'text') {
+                    eyeIcon1.classList.remove('fa-eye');
+                    eyeIcon1.classList.add('fa-eye-slash');
+                } else {
+                    eyeIcon1.classList.remove('fa-eye-slash');
+                    eyeIcon1.classList.add('fa-eye');
+                }
+            });
+        }
+        
+        // Toggle password2 visibility
+        if (togglePassword2 && password2) {
+            togglePassword2.addEventListener('click', function() {
+                const type = password2.getAttribute('type') === 'password' ? 'text' : 'password';
+                password2.setAttribute('type', type);
+                
+                // Toggle eye icon
+                if (type === 'text') {
+                    eyeIcon2.classList.remove('fa-eye');
+                    eyeIcon2.classList.add('fa-eye-slash');
+                } else {
+                    eyeIcon2.classList.remove('fa-eye-slash');
+                    eyeIcon2.classList.add('fa-eye');
+                }
+            });
+        }
+    });
+    </script>
+</body>
+</html>

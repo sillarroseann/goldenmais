@@ -1,0 +1,150 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Contact Messages | Golden Mais{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Contact Messages</h1>
+        <p class="text-gray-600">Manage customer inquiries and messages</p>
+    </div>
+</div>
+
+<!-- Filter Bar -->
+<div class="bg-white rounded-lg shadow p-4 mb-6">
+    <form method="get" class="flex gap-4 items-center">
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Filter by Status</label>
+            <select name="status" 
+                    class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-yellow-500"
+                    onchange="this.form.submit()">
+                <option value="">All Messages</option>
+                <option value="unread" {% if status_filter == 'unread' %}selected{% endif %}>Unread</option>
+                <option value="read" {% if status_filter == 'read' %}selected{% endif %}>Read</option>
+            </select>
+        </div>
+        {% if status_filter %}
+            <div class="mt-6">
+                <a href="{% url 'admin_contacts' %}" 
+                   class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition">
+                    Clear Filter
+                </a>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+<!-- Floating Quick Stats -->
+<div class="floating-section rounded-2xl p-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl shadow p-4 border border-gray-100">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-red-100 text-red-600">
+                <i class="fas fa-envelope text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-gray-500">Unread Messages</p>
+                <p class="text-2xl font-bold text-gray-900">
+                    {{ contacts.object_list|length }}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4 border border-gray-100">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100 text-green-600">
+                <i class="fas fa-inbox text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-gray-500">Total Messages</p>
+                <p class="text-2xl font-bold text-gray-900">{{ contacts.paginator.count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="bg-white rounded-2xl shadow p-4 border border-gray-100">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                <i class="fas fa-clock text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <p class="text-sm text-gray-500">Response Time</p>
+                <p class="text-2xl font-bold text-gray-900">&lt; 24h</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Messages List -->
+<div class="space-y-4">
+    {% for contact in contacts %}
+        {% with sender=contact.latest_message_sender|default:'customer' %}
+        <a href="{% url 'admin_contact_view' contact.id %}" class="block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 rounded-2xl">
+            <div class="floating-section p-5 rounded-2xl border hover:shadow-md transition
+                {% if sender == 'admin' %}border-green-200 bg-green-50{% else %}border-yellow-200 bg-yellow-50{% endif %}">
+                <div class="flex items-start justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="h-12 w-12 rounded-full bg-blue-100 text-blue-700 font-semibold flex items-center justify-center text-lg">
+                            {{ contact.name|first|upper }}
+                        </div>
+                        <div>
+                            <p class="text-lg font-semibold text-gray-900">{{ contact.name }}</p>
+                            <p class="text-sm text-gray-500">{{ contact.email }}</p>
+                            <p class="text-xs text-gray-400 mt-1">{{ contact.created_at|date:"M d, Y" }} • {{ contact.created_at|time:"g:i A" }} • {{ contact.created_at|timesince }} ago</p>
+                        </div>
+                    </div>
+                    {% if not contact.is_read %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+                            Awaiting reply
+                        </span>
+                    {% else %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+                            Replied
+                        </span>
+                    {% endif %}
+                </div>
+                <div class="mt-4 space-y-2">
+                    {% if contact.subject %}
+                        <p class="text-base font-semibold text-gray-900">{{ contact.subject }}</p>
+                    {% endif %}
+                    <p class="text-sm text-gray-700 flex items-center gap-2">
+                        <span class="px-2 py-0.5 rounded-full text-xs font-semibold
+                            {% if sender == 'admin' %}bg-green-200 text-green-800{% else %}bg-yellow-200 text-yellow-800{% endif %}">
+                            {% if sender == 'admin' %}Latest admin reply{% else %}Customer message{% endif %}
+                        </span>
+                        <span class="line-clamp-1">{{ contact.latest_message|default:contact.message|truncatechars:120 }}</span>
+                    </p>
+                </div>
+            </div>
+        </a>
+        {% endwith %}
+    {% empty %}
+        <div class="bg-white rounded-2xl shadow p-8 text-center text-gray-500">
+            <i class="fas fa-envelope-open-text text-4xl text-gray-300 mb-3"></i>
+            <p>No contact messages found for this filter.</p>
+        </div>
+    {% endfor %}
+
+    <!-- Pagination -->
+    {% if contacts.has_other_pages %}
+        <div class="bg-white px-4 py-3 border border-gray-200 rounded-2xl shadow-sm">
+            <div class="flex items-center justify-between text-sm text-gray-600">
+                <div>
+                    Showing page {{ contacts.number }} of {{ contacts.paginator.num_pages }} ({{ contacts.paginator.count }} total messages)
+                </div>
+                <div class="space-x-2">
+                    {% if contacts.has_previous %}
+                        <a href="?page={{ contacts.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                           class="px-3 py-1 rounded-full border border-gray-300 hover:bg-gray-50">Previous</a>
+                    {% endif %}
+                    {% if contacts.has_next %}
+                        <a href="?page={{ contacts.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+                           class="px-3 py-1 rounded-full border border-gray-300 hover:bg-gray-50">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+
+{% endblock %}

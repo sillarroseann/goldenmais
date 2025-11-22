@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Golden Mais | About Us{% endblock %}
+
+{% block extra_css %}
+<style>
+    .floating-card {
+        transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+        border: 1px solid transparent;
+    }
+
+    .floating-card:hover {
+        transform: translateY(-10px) scale(1.01);
+        box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+    }
+
+    .floating-card.selected {
+        border-color: #facc15;
+        box-shadow: 0 25px 55px rgba(250, 204, 21, 0.35);
+        transform: translateY(-12px) scale(1.015);
+    }
+
+    .floating-card .selection-pill {
+        display: none;
+    }
+
+    .floating-card.selected .selection-pill {
+        display: inline-flex;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero / Banner -->
+<section class="relative h-[70vh] flex items-center justify-center text-center text-white overflow-hidden rounded-b-[2rem]">
+    <img src="{% static 'img/banner.jpg' %}" alt="Cornfield Background" class="absolute inset-0 w-full h-full object-cover brightness-75" />
+    <div class="relative z-10 px-6 max-w-2xl">
+        <h1 class="text-4xl md:text-6xl font-bold mb-4">
+            About <span class="text-yellow-300">Golden Mais</span>
+        </h1>
+        <p class="text-lg md:text-xl text-yellow-100 leading-relaxed">
+            From our fields to your family — bringing fresh, sweet corn and local goodness every day.
+        </p>
+    </div>
+</section>
+
+<!-- About Us Story -->
+<section class="py-20 px-8 bg-yellow-100">
+    <div class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        <div>
+            <h2 class="text-3xl font-bold text-yellow-800 mb-4">Our Story 🌽</h2>
+            <p class="text-gray-700 leading-relaxed mb-6">
+                <span class="font-semibold text-yellow-800">Golden Mais</span> began with a simple dream — to bring farm-fresh, locally grown sweet corn
+                to every household in Calubian, Leyte. What started as a small family venture has grown into a trusted local brand known for its
+                freshness, quality, and care.
+            </p>
+            <p class="text-gray-700 leading-relaxed">
+                Each cob is handpicked from our family farm, ensuring that you get only the sweetest and most flavorful corn — perfect for grilling,
+                cooking, or snacking. We believe in supporting local farmers and delivering natural goodness straight to your table.
+            </p>
+        </div>
+
+        <div class="flex justify-center">
+            <img src="{% static 'img/farm.png' %}" alt="Farm workers harvesting corn" class="rounded-3xl shadow-xl object-cover w-full max-w-md" />
+        </div>
+    </div>
+</section>
+
+<!-- Featured Section -->
+<section class="bg-yellow-50 py-20 px-8">
+    <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-green-800 mb-8">
+            Why Choose <span class="text-green-800">Golden Mais?</span>
+        </h2>
+        <p class="text-gray-700 max-w-2xl mx-auto mb-12">
+            We take pride in offering farm-fresh corn and locally sourced products straight from the fields to your table.
+            Here's what makes us special:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="bg-green-300 rounded-2xl shadow-lg p-8 hover:shadow-xl transition floating-card">
+                <i class="fa-solid fa-seedling text-5xl text-yellow-700 mb-4"></i>
+                <h3 class="text-xl font-semibold text-yellow-800 mb-2">Farm Fresh Quality</h3>
+                <p class="text-gray-700 text-sm">Our sweet corn is handpicked daily to ensure natural sweetness, freshness, and premium taste.</p>
+            </div>
+
+            <div class="bg-green-300 rounded-2xl shadow-lg p-8 hover:shadow-xl transition floating-card">
+                <i class="fa-solid fa-hand-holding-heart text-5xl text-yellow-700 mb-4"></i>
+                <h3 class="text-xl font-semibold text-yellow-800 mb-2">Locally Grown with Love</h3>
+                <p class="text-gray-700 text-sm">Supporting local farmers and communities by promoting sustainable and fair farming practices.</p>
+            </div>
+
+            <div class="bg-green-300 rounded-2xl shadow-lg p-8 hover:shadow-xl transition floating-card">
+                <i class="fa-solid fa-star text-5xl text-yellow-700 mb-4"></i>
+                <h3 class="text-xl font-semibold text-yellow-800 mb-2">Trusted by Families</h3>
+                <p class="text-gray-700 text-sm">Families across Leyte trust Golden Mais for its consistent freshness, sweetness, and reliability.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Meet Our Farmers -->
+<section class="py-20 px-8 bg-yellow-100 text-center">
+    <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-bold text-yellow-800 mb-10">Meet Our Farmers 👩‍🌾</h2>
+        <p class="text-gray-700 max-w-3xl mx-auto mb-12">
+            Behind every cob of sweet corn are hardworking farmers who pour their dedication and care into every harvest.
+            Meet the people who make Golden Mais possible.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition floating-card">
+                <div class="w-28 h-28 rounded-full mx-auto bg-gray-300 mb-4 flex items-center justify-center">
+                    <i class="fas fa-user text-gray-600 text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-yellow-800">Mang Romeo</h3>
+                <p class="text-sm text-gray-600 italic">Head Farmer – 20 years of experience</p>
+                <p class="text-gray-700 text-sm mt-3">Leads the harvesting team and ensures only the freshest corn is handpicked daily.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition floating-card">
+                <div class="w-28 h-28 rounded-full mx-auto bg-gray-300 mb-4 flex items-center justify-center">
+                    <i class="fas fa-user text-gray-600 text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-yellow-800">Aling Marivic</h3>
+                <p class="text-sm text-gray-600 italic">Quality Control Supervisor</p>
+                <p class="text-gray-700 text-sm mt-3">Inspects every corn cob before it reaches your table — ensuring top quality.</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl transition floating-card">
+                <div class="w-28 h-28 rounded-full mx-auto bg-gray-300 mb-4 flex items-center justify-center">
+                    <i class="fas fa-users text-gray-600 text-3xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-yellow-800">Manoy Ondo & Manoy Jijie</h3>
+                <p class="text-sm text-gray-600 italic">Logistics & Delivery</p>
+                <p class="text-gray-700 text-sm mt-3">Makes sure every order is delivered fresh and on time to our customers.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Best-Selling Product Gallery -->
+<section class="bg-white py-20 px-8">
+    <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-yellow-800 mb-8">Our Best-Selling Corn Products 🌽</h2>
+        
+        {% if bestselling_products %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-10">
+            {% for product in bestselling_products %}
+            <div class="bg-yellow-50 rounded-2xl shadow-lg transition overflow-hidden floating-card selectable-card cursor-pointer">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-56 object-cover" />
+                {% else %}
+                    <img src="{% static 'img/dozenfreshcorn.jpg' %}" alt="{{ product.name }}" class="w-full h-56 object-cover" />
+                {% endif %}
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-lg font-semibold text-yellow-800">{{ product.name }}</h3>
+                        <span class="selection-pill text-xs font-semibold px-3 py-1 rounded-full bg-yellow-200 text-yellow-800"><i class="fas fa-check mr-1"></i>Selected</span>
+                    </div>
+                    <p class="text-gray-700 text-sm mb-2">{{ product.description|truncatewords:15 }}</p>
+                    <p class="text-yellow-700 font-bold">₱{{ product.price }}</p>
+                    <a href="{% url 'product_detail' product.slug %}" 
+                       class="mt-3 inline-block bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                        View Product
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12">
+            <p class="text-gray-500 text-lg">No bestselling products available at the moment.</p>
+            <a href="{% url 'products' %}" class="mt-4 inline-block bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition">
+                View All Products
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Customer Reviews Section -->
+{% if featured_reviews %}
+<section class="py-20 px-8 bg-yellow-50">
+    <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-yellow-800 mb-6">What Our Customers Say 💛</h2>
+        <p class="text-gray-700 mb-12 max-w-2xl mx-auto">
+            Hear from our happy customers who enjoy the freshness, sweetness, and local goodness of Golden Mais products!
+        </p>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            {% for review in featured_reviews %}
+            <div class="bg-green-300 shadow-lg rounded-2xl p-6 flex flex-col items-center text-center hover:shadow-xl transition floating-card">
+                <div class="w-16 h-16 rounded-full mb-4 bg-gray-300 flex items-center justify-center">
+                    <i class="fas fa-user text-gray-600 text-2xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-yellow-800">{{ review.customer.user.get_full_name|default:review.customer.user.username }}</h3>
+                <p class="text-sm text-gray-600 italic mb-3">"{{ review.comment|truncatewords:15 }}"</p>
+                <div class="flex justify-center space-x-1 text-yellow-500 text-xl">
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.rating %}⭐{% else %}☆{% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

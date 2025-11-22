@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | Golden Mais</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous">
+  </head>
+  <body class="min-h-screen flex">
+    <!-- Left Side: Corn Image -->
+    <div
+      class="hidden md:flex w-1/2 bg-cover bg-center"
+      style="background-image: url('https://images.unsplash.com/photo-1506806732259-39c2d0268443?auto=format&fit=crop&w=800&q=80');"
+    ></div>
+
+    <!-- Right Side: Login Form -->
+    <div
+      class="flex flex-col justify-center items-center w-full md:w-1/2 bg-gray-50 p-8"
+    >
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
+        <h2 class="text-3xl font-bold text-center text-green-800 mb-6">
+          Welcome Back!
+        </h2>
+
+        <p class="text-center text-gray-500 mb-6">
+          Sign in to your account to continue
+        </p>
+
+        <input
+          type="email"
+          id="email"
+          placeholder="Email"
+          class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+        />
+        <div class="relative mb-6">
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            class="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none"
+          />
+          <button
+            type="button"
+            id="togglePassword"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer z-10"
+          >
+            <i class="fas fa-eye text-lg" id="eyeIcon"></i>
+          </button>
+        </div>
+
+        <button
+          onclick="login()"
+          class="w-full bg-green-800 hover:bg-green-800 text-white font-semibold py-2 rounded-lg transition"
+        >
+          Log In
+        </button>
+
+        <p class="mt-6 text-center text-gray-500">
+          Don’t have an account?
+          <a href="signup.html" class="text-green-800 hover:underline">
+            Sign up
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-elements">
+      <!-- Floating Home Button -->
+      <div class="fixed bottom-20 right-6 z-50">
+        <a href="index.html" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+          <i class="fas fa-home text-xl"></i>
+          <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Home</span>
+        </a>
+      </div>
+
+      <!-- Floating Help/Support Button -->
+      <div class="fixed bottom-36 right-6 z-50">
+        <button onclick="showHelpModal()" class="bg-yellow-600 hover:bg-yellow-700 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+          <i class="fas fa-question-circle text-xl"></i>
+          <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Need Help?</span>
+        </button>
+      </div>
+
+      <!-- Floating WhatsApp Contact -->
+      <div class="fixed bottom-6 right-6 z-50">
+        <a href="https://wa.me/639631186511" target="_blank" class="bg-green-500 hover:bg-green-600 text-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-110 flex items-center justify-center group">
+          <i class="fab fa-whatsapp text-lg"></i>
+          <span class="absolute right-full mr-3 bg-gray-800 text-white text-sm px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Contact Us</span>
+        </a>
+      </div>
+
+      <!-- Floating Login Status Indicator -->
+      <div class="fixed top-6 right-6 z-40">
+        <div id="loginStatus" class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg transform translate-x-full transition-transform duration-500">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-info-circle"></i>
+            <span class="text-sm font-semibold">Demo: user@example.com / 1234</span>
+            <button onclick="closeLoginStatus()" class="ml-2 text-white hover:text-gray-200">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 z-60 hidden flex items-center justify-center p-4">
+      <div class="bg-white rounded-2xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-green-600">Need Help?</h3>
+          <button onclick="closeHelpModal()" class="text-gray-400 hover:text-gray-600">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div class="p-4 bg-green-50 rounded-lg">
+            <h4 class="font-semibold text-green-600 mb-2">Demo Login</h4>
+            <p class="text-sm text-gray-600">Email: user@example.com</p>
+            <p class="text-sm text-gray-600">Password: 1234</p>
+          </div>
+          <div class="p-4 bg-yellow-50 rounded-lg">
+            <h4 class="font-semibold text-yellow-600 mb-2">Forgot Password?</h4>
+            <p class="text-sm text-gray-600">Contact us via WhatsApp for password recovery assistance.</p>
+          </div>
+          <div class="p-4 bg-blue-50 rounded-lg">
+            <h4 class="font-semibold text-blue-600 mb-2">New User?</h4>
+            <p class="text-sm text-gray-600">Click "Sign up" below to create a new account.</p>
+          </div>
+        </div>
+        <div class="mt-6 flex space-x-3">
+          <a href="https://wa.me/639631186511" target="_blank" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-center py-2 rounded-lg transition">
+            <i class="fab fa-whatsapp mr-2"></i>WhatsApp
+          </a>
+          <button onclick="closeHelpModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg transition">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      // Password show/hide functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        const password = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function() {
+          const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+          password.setAttribute('type', type);
+          
+          // Toggle eye icon
+          if (type === 'text') {
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+          } else {
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+          }
+        });
+      });
+
+      function login() {
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!email || !password) {
+          alert("Please fill in both fields!");
+          return;
+        }
+
+        // Example: Replace this with your actual authentication
+        if (email === "user@example.com" && password === "1234") {
+          alert("Login successful!");
+          window.location.href = "index.html"; // ✅ Redirect to index.html
+        } else {
+          alert("Invalid email or password.");
+        }
+      }
+
+      // Floating Elements JavaScript
+      // Help Modal Functions
+      function showHelpModal() {
+        document.getElementById('helpModal').classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeHelpModal() {
+        document.getElementById('helpModal').classList.add('hidden');
+        document.body.style.overflow = 'auto';
+      }
+
+      // Login Status Functions
+      function closeLoginStatus() {
+        const loginStatus = document.getElementById('loginStatus');
+        loginStatus.classList.add('translate-x-full');
+        loginStatus.classList.remove('translate-x-0');
+      }
+
+      // Show login status after page load
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          const loginStatus = document.getElementById('loginStatus');
+          loginStatus.classList.remove('translate-x-full');
+          loginStatus.classList.add('translate-x-0');
+        }, 1500);
+      });
+
+      // Auto-hide login status after 8 seconds
+      setTimeout(function() {
+        closeLoginStatus();
+      }, 10000);
+
+      // Close modal when clicking outside
+      document.getElementById('helpModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closeHelpModal();
+        }
+      });
+    </script>
+  </body>
+</html>

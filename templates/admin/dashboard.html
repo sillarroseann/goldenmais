@@ -1,0 +1,234 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Admin Dashboard | Golden Mais{% endblock %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-900">Dashboard</h1>
+    <p class="text-gray-600 mt-2">Welcome to Golden Mais Admin Panel</p>
+</div>
+
+<!-- Statistics Cards -->
+<div class="floating-section rounded-2xl p-4 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Products -->
+    <a href="{% url 'admin_products' %}" class="block bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-blue-100">
+                <i class="fas fa-box text-blue-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Products</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"10" }}</p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Total Orders -->
+    <a href="{% url 'admin_orders' %}" class="block bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-yellow-100">
+                <i class="fas fa-shopping-cart text-yellow-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Orders</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_orders|default:"16" }}</p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Total Customers -->
+    <a href="{% url 'admin_customers' %}" class="block bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-green-100">
+                <i class="fas fa-users text-green-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Total Customers</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_customers|default:"8" }}</p>
+            </div>
+        </div>
+    </a>
+
+    <!-- Pending Messages -->
+    <a href="{% url 'admin_contacts' %}" class="block bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        <div class="flex items-center">
+            <div class="p-3 rounded-full bg-red-100">
+                <i class="fas fa-envelope text-red-600 text-xl"></i>
+            </div>
+            <div class="ml-4">
+                <p class="text-sm font-medium text-gray-600">Pending Messages</p>
+                <p class="text-2xl font-bold text-gray-900">{{ pending_contacts|default:"0" }}</p>
+            </div>
+        </div>
+    </a>
+</div>
+
+<!-- Main Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- This Month Stats -->
+    <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">This Month</h3>
+        <div class="space-y-4">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">New Orders</span>
+                <span class="font-semibold text-gray-900">{{ monthly_orders|default:"0" }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">New Customers</span>
+                <span class="font-semibold text-gray-900">{{ monthly_customers|default:"0" }}</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-600">Total Reviews</span>
+                <span class="font-semibold text-gray-900">{{ total_reviews|default:"3" }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Low Stock Alert -->
+    <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Low Stock Alert</h3>
+        {% if low_stock_products %}
+            <div class="space-y-2">
+                {% for product in low_stock_products %}
+                    <a href="{% url 'admin_product_edit' product.id %}"
+                       class="flex justify-between items-center p-2 bg-red-50 rounded hover:bg-red-100 transition focus:outline-none focus:ring-2 focus:ring-red-300">
+                        <div>
+                            <span class="text-sm text-gray-900 font-medium block">{{ product.name }}</span>
+                            <span class="text-xs text-gray-500">Click to edit stock</span>
+                        </div>
+                        <span class="text-sm font-semibold text-red-600">{{ product.stock_quantity }} left</span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-4">
+                <i class="fas fa-check-circle text-green-500 text-2xl mb-2"></i>
+                <p class="text-gray-500 text-sm">All products are well stocked!</p>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- Recent Activity -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Orders -->
+    <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
+        <div class="space-y-3">
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div>
+                    <p class="text-sm font-medium">#E6BE4C6B</p>
+                    <p class="text-xs text-gray-500">Rose Ann Sillar</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Order Placed</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div>
+                    <p class="text-sm font-medium">#76E22506</p>
+                    <p class="text-xs text-gray-500">Rose Ann Sillar</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Order Placed</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                <div>
+                    <p class="text-sm font-medium">#BAC61F12</p>
+                    <p class="text-xs text-gray-500">Rose Ann Sillar</p>
+                </div>
+                <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Order Confirmed</span>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_orders' %}" class="text-sm text-blue-600 hover:text-blue-800">View all orders →</a>
+        </div>
+    </div>
+
+    <!-- Recent Customers -->
+    <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Customers</h3>
+        <div class="space-y-3">
+            <div class="flex items-center p-3 bg-gray-50 rounded">
+                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-blue-600 font-medium text-sm">N</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium">Nhaiomi Escueta</p>
+                    <p class="text-xs text-gray-500">nhaiomiescueta27@gmail.com</p>
+                </div>
+            </div>
+            <div class="flex items-center p-3 bg-gray-50 rounded">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-green-600 font-medium text-sm">A</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium">Ann Pedida</p>
+                    <p class="text-xs text-gray-500">annpedida30@gmail.com</p>
+                </div>
+            </div>
+            <div class="flex items-center p-3 bg-gray-50 rounded">
+                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                    <span class="text-purple-600 font-medium text-sm">R</span>
+                </div>
+                <div>
+                    <p class="text-sm font-medium">Rose Ann Sillar</p>
+                    <p class="text-xs text-gray-500">sillarroseann7@gmail.com</p>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4">
+            <a href="{% url 'admin_customers' %}" class="text-sm text-blue-600 hover:text-blue-800">View all customers →</a>
+        </div>
+    </div>
+
+    <!-- Recent Reviews -->
+    <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
+        <div class="flex items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Recent Reviews</h3>
+            {% if new_feedback_count|default:0 > 0 %}
+                <span class="ml-3 px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">
+                    {{ new_feedback_count }} new
+                </span>
+            {% endif %}
+        </div>
+        <div class="space-y-3">
+            {% for feedback in recent_feedback %}
+                <div class="p-3 bg-gray-50 rounded">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="text-sm font-medium">{{ feedback.subject|default:'Customer Feedback' }}</p>
+                            {% if feedback.is_anonymous %}
+                                <p class="text-xs text-gray-500">Anonymous Customer</p>
+                            {% else %}
+                                <p class="text-xs text-gray-500 font-medium">{{ feedback.customer.user.get_full_name|default:feedback.customer.user.username }}</p>
+                                <p class="text-[11px] text-gray-400">@{{ feedback.customer.user.username }}</p>
+                            {% endif %}
+                        </div>
+                        {% if feedback.rating %}
+                            <div class="flex text-yellow-400">
+                                {% for _ in "12345" %}
+                                    <i class="{% if forloop.counter <= feedback.rating %}fas{% else %}far{% endif %} fa-star text-xs"></i>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    {% if feedback.message %}
+                        <p class="text-xs text-gray-600">{{ feedback.message|truncatechars:100 }}</p>
+                    {% endif %}
+                    <p class="text-[11px] text-gray-400 mt-2">{{ feedback.created_at|date:"M d, Y" }}</p>
+                </div>
+            {% empty %}
+                <div class="p-4 bg-gray-50 rounded text-center text-gray-500 text-sm">
+                    No recent reviews yet.
+                </div>
+            {% endfor %}
+            <div class="pt-2 text-right">
+                <a href="{% url 'admin_feedback_dashboard' %}" class="text-sm font-semibold text-yellow-600 hover:text-yellow-700">
+                    View all reviews →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

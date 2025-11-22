@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout | Golden Mais{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-8">
+    <div class="max-w-4xl mx-auto px-4">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Checkout</h1>
+            <p class="text-gray-600 mt-2">Complete your order</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Order Form -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-6">Order Details</h2>
+                
+                <form method="post" action="{% url 'checkout' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="payment_confirmed" id="payment-confirmed-input" value="false">
+                    
+                    <!-- Customer Information -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-4">Customer Information</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                                <input type="text" value="{{ user.get_full_name|default:user.username }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                                {% if digital_payment_error %}
+                        <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-sm text-red-700">
+                            <strong>Payment not detected.</strong> Please finish your GCash or PayMaya payment using the app button above. The order button stays disabled until payment is verified.
+                        </div>
+                        {% endif %}
+                    </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" value="{{ user.email }}" 
+                                       class="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-100" readonly>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                            <input type="tel" id="phone" name="phone" value="{{ phone_value }}" required
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                   placeholder="09XX XXX XXXX">
+                        </div>
+                    </div>
+
+                    <!-- Delivery Method -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-4">Delivery Method</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="radio" name="delivery_method" value="pickup" {% if selected_delivery_method != 'delivery' %}checked{% endif %}
+                                       class="text-yellow-600 focus:ring-yellow-500">
+                                <span class="ml-3">
+                                    <span class="font-medium">Store Pickup</span>
+                                    <span class="text-gray-500 block text-sm">Pick up at our farm location in Calubian, Leyte</span>
+                                </span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="radio" name="delivery_method" value="delivery" {% if selected_delivery_method == 'delivery' %}checked{% endif %}
+                                       class="text-yellow-600 focus:ring-yellow-500">
+                                <span class="ml-3">
+                                    <span class="font-medium">Home Delivery</span>
+                                    <span class="text-gray-500 block text-sm">Delivery within Calubian area (₱50 delivery fee)</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Delivery Address -->
+                    <div class="mb-6" id="delivery-address-section" style="display: none;">
+                        <label for="delivery_address" class="block text-sm font-medium text-gray-700 mb-2">Delivery Address *</label>
+                        <textarea id="delivery_address" name="delivery_address" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                  placeholder="Enter your complete delivery address">{{ delivery_address_value }}</textarea>
+                    </div>
+
+                    <!-- Special Notes -->
+                    <div class="mb-6">
+                        <label for="notes" class="block text-sm font-medium text-gray-700 mb-2">Special Instructions (Optional)</label>
+                        <textarea id="notes" name="notes" rows="3"
+                                  class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                  placeholder="Any special instructions for your order...">{{ notes_value }}</textarea>
+                    </div>
+
+                    <!-- Payment Method -->
+                    <div class="mb-6">
+                        <h3 class="text-lg font-medium mb-4">Payment Method</h3>
+                        <div class="space-y-3">
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="payment_method" value="cash" {% if preselected_payment == 'cash' %}checked{% endif %}
+                                       class="text-yellow-600 focus:ring-yellow-500">
+                                <span class="ml-3 flex items-center">
+                                    <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                                    <span class="font-medium">Cash on Delivery/Pickup</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="payment_method" value="gcash" {% if preselected_payment == 'gcash' %}checked{% endif %}
+                                       class="text-yellow-600 focus:ring-yellow-500">
+                                <span class="ml-3 flex items-center">
+                                    <i class="fas fa-mobile-alt text-blue-600 mr-2"></i>
+                                    <span class="font-medium">GCash</span>
+                                </span>
+                            </label>
+                            
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="payment_method" value="maya" {% if preselected_payment == 'maya' %}checked{% endif %}
+                                       class="text-yellow-600 focus:ring-yellow-500">
+                                <span class="ml-3 flex items-center">
+                                    <i class="fas fa-credit-card text-green-600 mr-2"></i>
+                                    <span class="font-medium">Maya (PayMaya)</span>
+                                </span>
+                            </label>
+                            
+                        </div>
+                        
+                        <!-- Payment Instructions -->
+                        <div id="payment-instructions" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md" style="{% if preselected_payment == 'gcash' or preselected_payment == 'maya' %}display: block;{% else %}display: none;{% endif %}">
+                            <div id="gcash-instructions" class="payment-instruction" style="{% if preselected_payment == 'gcash' %}display: block;{% else %}display: none;{% endif %}">
+                                <h4 class="font-medium text-blue-800 mb-3">GCash Payment</h4>
+                                <div class="bg-white p-4 rounded-lg border">
+                                    <p class="text-sm text-gray-700 mb-3">Total Amount: <strong class="text-lg text-green-600">₱<span id="gcash-total">{{ total_amount|floatformat:2 }}</span></strong></p>
+                                    <div class="space-y-2">
+                                        <button type="button" onclick="openGCashPayment()" 
+                                           class="block w-full bg-blue-600 text-white text-center py-3 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-mobile-alt mr-2"></i>Pay with GCash App
+                                        </button>
+                                        <p class="text-xs text-gray-600 text-center">Or send to: <strong>09631186511</strong></p>
+                                        <p class="text-xs text-blue-700">Please send screenshot of payment confirmation to WhatsApp.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="maya-instructions" class="payment-instruction" style="{% if preselected_payment == 'maya' %}display: block;{% else %}display: none;{% endif %}">
+                                <h4 class="font-medium text-blue-800 mb-3">Maya (PayMaya) Payment</h4>
+                                <div class="bg-white p-4 rounded-lg border">
+                                    <p class="text-sm text-gray-700 mb-3">Total Amount: <strong class="text-lg text-green-600">₱<span id="maya-total">{{ total_amount|floatformat:2 }}</span></strong></p>
+                                    <div class="space-y-2">
+                                        <button type="button" onclick="openMayaPayment()" 
+                                           class="block w-full bg-green-600 text-white text-center py-3 px-4 rounded-lg hover:bg-green-700 transition-colors">
+                                            <i class="fas fa-credit-card mr-2"></i>Pay with Maya App
+                                        </button>
+                                        <p class="text-xs text-gray-600 text-center">Or send to: <strong>09631186511</strong></p>
+                                        <p class="text-xs text-blue-700">Please send screenshot of payment confirmation to WhatsApp.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" id="place-order-btn"
+                            class="w-full bg-green-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-check mr-2"></i>Place Order
+                    </button>
+                    
+                    <!-- Payment Status Notice -->
+                    <div id="payment-status-notice" class="mt-3 hidden">
+                        <!-- Payment Processing -->
+                        <div id="payment-processing" class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="fas fa-spinner fa-spin text-blue-600 mr-2"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm text-blue-800">
+                                        <strong>Processing Payment...</strong> Please complete your payment in the app that opened.
+                                    </p>
+                                    <p id="verification-status" class="text-xs text-blue-600 mt-1">Waiting for payment confirmation...</p>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <!-- Progress bar -->
+                                <div class="w-full bg-blue-200 rounded-full h-2">
+                                    <div id="verification-progress" class="bg-blue-600 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div class="mt-2 text-xs text-blue-600">
+                                <p>• Complete the payment in your GCash/Maya app</p>
+                                <p>• Do not close this page</p>
+                                <p>• Payment will be verified automatically</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Verified -->
+                        <div id="payment-verified" class="p-3 bg-green-50 border border-green-200 rounded-lg hidden">
+                            <div class="flex items-center">
+                                <i class="fas fa-check-circle text-green-600 mr-2"></i>
+                                <p class="text-sm text-green-800">
+                                    <strong>Payment Verified!</strong> You can now place your order.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Failed -->
+                        <div id="payment-failed" class="p-3 bg-red-50 border border-red-200 rounded-lg hidden">
+                            <div class="flex items-center">
+                                <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+                                <p class="text-sm text-red-800">
+                                    <strong>Payment Not Detected.</strong> Please try again or contact support.
+                                </p>
+                            </div>
+                            <button type="button" onclick="retryPayment()" class="mt-2 w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition text-sm">
+                                <i class="fas fa-redo mr-2"></i>Retry Payment
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Order Summary -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-6">Order Summary</h2>
+                
+                <!-- Cart Items -->
+                <div class="space-y-4 mb-6">
+                    {% for item in cart_items %}
+                        <div class="flex items-center space-x-4">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                     class="w-16 h-16 object-cover rounded-md">
+                            {% else %}
+                                <div class="w-16 h-16 bg-gray-200 rounded-md flex items-center justify-center">
+                                    <i class="fas fa-image text-gray-400"></i>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="flex-1">
+                                <h3 class="font-medium text-gray-900">{{ item.product.name }}</h3>
+                                <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+                            </div>
+                            
+                            <div class="text-right">
+                                <p class="font-medium">₱{{ item.product.price }}</p>
+                                <p class="text-sm text-gray-500">₱{{ item.get_total_price }}</p>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Order Totals -->
+                <div class="border-t pt-4 space-y-2">
+                    <div class="flex justify-between">
+                        <span>Subtotal</span>
+                        <span>₱{{ total_amount|floatformat:2 }}</span>
+                    </div>
+                    <div class="flex justify-between" id="delivery-fee" style="display: none;">
+                        <span>Delivery Fee</span>
+                        <span>₱50.00</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-semibold border-t pt-2">
+                        <span>Total</span>
+                        <span id="final-total">₱{{ total_amount|floatformat:2 }}</span>
+                    </div>
+                </div>
+
+                <!-- Back to Cart -->
+                <div class="mt-6">
+                    <a href="{% url 'cart' %}" 
+                       class="w-full bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-lg hover:bg-gray-300 transition block text-center">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Cart
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Handle delivery method change
+document.addEventListener('DOMContentLoaded', function() {
+    const deliveryRadios = document.querySelectorAll('input[name="delivery_method"]');
+    const addressSection = document.getElementById('delivery-address-section');
+    const deliveryFee = document.getElementById('delivery-fee');
+    const finalTotal = document.getElementById('final-total');
+    const baseTotal = parseFloat('{{ total_amount|floatformat:2 }}');
+    
+    deliveryRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'delivery') {
+                addressSection.style.display = 'block';
+                addressSection.querySelector('textarea').required = true;
+                deliveryFee.style.display = 'flex';
+                const newTotal = (baseTotal + 50).toFixed(2);
+                finalTotal.textContent = '₱' + newTotal;
+                // Update payment amounts
+                updatePaymentAmounts(newTotal);
+            } else {
+                addressSection.style.display = 'none';
+                addressSection.querySelector('textarea').required = false;
+                deliveryFee.style.display = 'none';
+                const newTotal = baseTotal.toFixed(2);
+                finalTotal.textContent = '₱' + newTotal;
+                // Update payment amounts
+                updatePaymentAmounts(newTotal);
+            }
+        });
+    });
+    
+    // Function to update payment amounts
+    function updatePaymentAmounts(amount) {
+        const gcashTotal = document.getElementById('gcash-total');
+        const mayaTotal = document.getElementById('maya-total');
+        
+        if (gcashTotal) {
+            gcashTotal.textContent = amount;
+        }
+        if (mayaTotal) {
+            mayaTotal.textContent = amount;
+        }
+    }
+    
+    // Initialize payment amounts on page load
+    updatePaymentAmounts(baseTotal.toFixed(2));
+    
+    // Payment confirmation system
+    let paymentInitiated = false;
+    let paymentConfirmed = false;
+    
+    // GCash payment function
+    window.openGCashPayment = function() {
+        startPaymentProcess('gcash');
+        
+        // Try multiple GCash URLs
+        const gcashUrls = [
+            'gcash://pay',
+            'https://m.gcash.com/gcashapp',
+            'https://www.gcash.com'
+        ];
+        
+        // Try to open GCash app first
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = gcashUrls[0];
+        document.body.appendChild(iframe);
+        
+        // Fallback to web version after 2 seconds
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+            window.open(gcashUrls[2], '_blank');
+        }, 2000);
+        
+        // Start payment verification process
+        startPaymentVerification('gcash');
+    };
+    
+    // Maya payment function
+    window.openMayaPayment = function() {
+        startPaymentProcess('maya');
+        
+        // Try multiple Maya URLs
+        const mayaUrls = [
+            'maya://pay',
+            'https://maya.ph/app',
+            'https://maya.ph'
+        ];
+        
+        // Try to open Maya app first
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = mayaUrls[0];
+        document.body.appendChild(iframe);
+        
+        // Fallback to web version after 2 seconds
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+            window.open(mayaUrls[2], '_blank');
+        }, 2000);
+        
+        // Start payment verification process
+        startPaymentVerification('maya');
+    };
+
+    // Start payment process
+    function startPaymentProcess(method) {
+        paymentInitiated = true;
+        console.log('Payment initiated for:', method);
+        
+        // Show payment processing notice
+        const statusNotice = document.getElementById('payment-status-notice');
+        const processingDiv = document.getElementById('payment-processing');
+        const verifiedDiv = document.getElementById('payment-verified');
+        const failedDiv = document.getElementById('payment-failed');
+        
+        // Show processing state
+        statusNotice.classList.remove('hidden');
+        processingDiv.classList.remove('hidden');
+        verifiedDiv.classList.add('hidden');
+        failedDiv.classList.add('hidden');
+    }
+    
+    // Start payment verification process
+    function startPaymentVerification(method) {
+        // Generate unique transaction ID for tracking
+        const transactionId = 'TXN_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        console.log(`Starting payment verification for ${method}, Transaction ID: ${transactionId}`);
+        
+        let verificationAttempts = 0;
+        const maxAttempts = 18; // 3 minutes of checking (every 10 seconds)
+        
+        const checkPaymentStatus = async () => {
+            verificationAttempts++;
+            console.log(`Checking payment status... Attempt ${verificationAttempts}/${maxAttempts}`);
+            
+            // Update progress bar and status
+            const progressBar = document.getElementById('verification-progress');
+            const statusText = document.getElementById('verification-status');
+            const progress = (verificationAttempts / maxAttempts) * 100;
+            
+            if (progressBar) {
+                progressBar.style.width = `${Math.min(progress, 90)}%`; // Cap at 90% until verified
+            }
+            
+            if (statusText) {
+                statusText.textContent = `Verifying payment... (${verificationAttempts}/${maxAttempts})`;
+            }
+            
+            try {
+                // In a real implementation, this would be an API call to your backend
+                // which would check with GCash/Maya webhook or API
+                const response = await fetch('/api/check-payment-status/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({
+                        transaction_id: transactionId,
+                        payment_method: method,
+                        amount: document.getElementById(method + '-total').textContent
+                    })
+                }).catch(() => null);
+                
+                // For demo purposes, simulate payment verification
+                // Remove this in production and use actual API response
+                const simulateSuccess = verificationAttempts >= 2 && Math.random() > 0.4;
+                
+                if (response && response.ok) {
+                    const data = await response.json();
+                    if (data.status === 'verified') {
+                        paymentVerified(method);
+                        return;
+                    } else if (data.status === 'failed') {
+                        paymentFailed(method);
+                        return;
+                    }
+                } else if (simulateSuccess) {
+                    // Demo simulation - remove in production
+                    paymentVerified(method);
+                    return;
+                }
+                
+                if (verificationAttempts >= maxAttempts) {
+                    paymentFailed(method);
+                } else {
+                    setTimeout(checkPaymentStatus, 10000); // Check every 10 seconds
+                }
+                
+            } catch (error) {
+                console.error('Payment verification error:', error);
+                if (verificationAttempts >= maxAttempts) {
+                    paymentFailed(method);
+                } else {
+                    setTimeout(checkPaymentStatus, 10000);
+                }
+            }
+        };
+        
+        // Start checking after 3 seconds (give user time to switch to payment app)
+        setTimeout(checkPaymentStatus, 3000);
+    }
+    
+    // Payment verified successfully
+    function paymentVerified(method) {
+        paymentConfirmed = true;
+        
+        const processingDiv = document.getElementById('payment-processing');
+        const verifiedDiv = document.getElementById('payment-verified');
+        const failedDiv = document.getElementById('payment-failed');
+        const placeOrderBtn = document.getElementById('place-order-btn');
+        
+        // Update UI to show verification success
+        processingDiv.classList.add('hidden');
+        verifiedDiv.classList.remove('hidden');
+        failedDiv.classList.add('hidden');
+        
+        // Enable place order button
+        placeOrderBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+        placeOrderBtn.classList.add('bg-green-600', 'hover:bg-green-700');
+        placeOrderBtn.disabled = false;
+        
+        console.log(`Payment verified for ${method}`);
+    }
+    
+    // Payment verification failed
+    function paymentFailed(method) {
+        const processingDiv = document.getElementById('payment-processing');
+        const verifiedDiv = document.getElementById('payment-verified');
+        const failedDiv = document.getElementById('payment-failed');
+        
+        // Update UI to show verification failure
+        processingDiv.classList.add('hidden');
+        verifiedDiv.classList.add('hidden');
+        failedDiv.classList.remove('hidden');
+        
+        console.log(`Payment verification failed for ${method}`);
+    }
+    
+    // Retry payment function
+    window.retryPayment = function() {
+        const statusNotice = document.getElementById('payment-status-notice');
+        statusNotice.classList.add('hidden');
+        
+        // Reset payment state
+        paymentInitiated = false;
+        paymentConfirmed = false;
+    };
+    
+    // Handle form submission
+    const checkoutForm = document.querySelector('form');
+    if (checkoutForm) {
+        checkoutForm.addEventListener('submit', function(e) {
+            const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+            
+            // Validate required fields
+            const phoneInput = document.querySelector('input[name="phone"]');
+            const deliveryMethod = document.querySelector('input[name="delivery_method"]:checked');
+            
+            if (!phoneInput || !phoneInput.value.trim()) {
+                e.preventDefault();
+                alert('Please enter your phone number.');
+                phoneInput?.focus();
+                return false;
+            }
+            
+            if (!deliveryMethod) {
+                e.preventDefault();
+                alert('Please select a delivery method.');
+                return false;
+            }
+            
+            if (!selectedPayment) {
+                e.preventDefault();
+                alert('Please select a payment method.');
+                return false;
+            }
+            
+            // Check payment confirmation for digital payments
+            if (selectedPayment && (selectedPayment.value === 'gcash' || selectedPayment.value === 'maya')) {
+                if (!paymentConfirmed) {
+                    e.preventDefault();
+                    alert('Please complete your payment first and click "I\'ve Completed Payment" before placing your order.');
+                    return false;
+                }
+            }
+            
+            // If delivery is selected, check address
+            if (deliveryMethod.value === 'delivery') {
+                const addressInput = document.querySelector('textarea[name="delivery_address"]');
+                if (!addressInput || !addressInput.value.trim()) {
+                    e.preventDefault();
+                    alert('Please enter your delivery address.');
+                    addressInput?.focus();
+                    return false;
+                }
+            }
+            
+            // Show loading state
+            const submitBtn = document.getElementById('place-order-btn');
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+    
+    // Handle payment method change
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const paymentInstructions = document.getElementById('payment-instructions');
+    const allInstructions = document.querySelectorAll('.payment-instruction');
+    
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Hide all instructions first
+            allInstructions.forEach(instruction => {
+                instruction.style.display = 'none';
+            });
+            
+            if (this.value === 'cash') {
+                paymentInstructions.style.display = 'none';
+            } else {
+                paymentInstructions.style.display = 'block';
+                const instructionId = this.value + '-instructions';
+                const targetInstruction = document.getElementById(instructionId);
+                if (targetInstruction) {
+                    targetInstruction.style.display = 'block';
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

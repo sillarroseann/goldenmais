@@ -1,0 +1,254 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}View Product | Golden Mais{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="flex justify-between items-center mb-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-900">Product Details</h1>
+        <p class="text-gray-600">{{ product.name }}</p>
+    </div>
+    <div class="flex space-x-3">
+        <a href="{% url 'admin_products' %}" 
+           class="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition">
+            <i class="fas fa-arrow-left mr-2"></i>Back to Products
+        </a>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Product Information -->
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Product Information</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Product Name</label>
+                    <p class="text-lg font-medium text-gray-900">{{ product.name }}</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Category</label>
+                    <p class="text-lg text-gray-900">{{ product.category.name }}</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Product Type</label>
+                    <p class="text-lg text-gray-900">{{ product.get_product_type_display }}</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Price</label>
+                    <p class="text-lg font-semibold text-green-600">₱{{ product.price }}</p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Stock Quantity</label>
+                    <p class="text-lg text-gray-900 {% if product.stock_quantity < 10 %}text-red-600 font-semibold{% endif %}">
+                        {{ product.stock_quantity }}
+                        {% if product.stock_quantity < 10 %}
+                            <span class="text-sm text-red-500">(Low Stock)</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-500 mb-1">Slug</label>
+                    <p class="text-lg text-gray-900 font-mono">{{ product.slug }}</p>
+                </div>
+            </div>
+            
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-500 mb-1">Description</label>
+                <p class="text-gray-900 leading-relaxed">{{ product.description }}</p>
+            </div>
+            
+            <!-- Product Features -->
+            <div class="mt-6">
+                <label class="block text-sm font-medium text-gray-500 mb-3">Product Features</label>
+                <div class="flex flex-wrap gap-2">
+                    {% if product.is_featured %}
+                        <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Featured</span>
+                    {% endif %}
+                    {% if product.is_bestseller %}
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">Bestseller</span>
+                    {% endif %}
+                    {% if product.is_new %}
+                        <span class="px-3 py-1 bg-purple-100 text-purple-800 text-sm font-medium rounded-full">New</span>
+                    {% endif %}
+                    {% if product.free_delivery %}
+                        <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">Free Delivery</span>
+                    {% endif %}
+                    {% if not product.is_featured and not product.is_bestseller and not product.is_new and not product.free_delivery %}
+                        <span class="px-3 py-1 bg-gray-100 text-gray-800 text-sm font-medium rounded-full">Regular</span>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Timestamps -->
+            <div class="mt-6 pt-6 border-t border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-500">
+                    <div>
+                        <span class="font-medium">Created:</span> {{ product.created_at|date:"M d, Y g:i A" }}
+                    </div>
+                    <div>
+                        <span class="font-medium">Last Updated:</span> {{ product.updated_at|date:"M d, Y g:i A" }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Reviews Section -->
+        {% if reviews %}
+        <div class="bg-white rounded-lg shadow p-6">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Customer Reviews</h2>
+            
+            {% if avg_rating %}
+                <div class="mb-4 p-4 bg-yellow-50 rounded-lg">
+                    <div class="flex items-center">
+                        <span class="text-2xl font-bold text-yellow-600">{{ avg_rating|floatformat:1 }}</span>
+                        <div class="ml-2 flex">
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= avg_rating|floatformat:0 %}
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                {% else %}
+                                    <i class="far fa-star text-yellow-400"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">({{ reviews.count }} review{{ reviews.count|pluralize }})</span>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="space-y-4">
+                {% for review in reviews|slice:":5" %}
+                    <div class="border-b border-gray-200 pb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center">
+                                <span class="font-medium text-gray-900">{{ review.customer.user.get_full_name|default:review.customer.user.username }}</span>
+                                <div class="ml-2 flex">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star text-yellow-400 text-sm"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-yellow-400 text-sm"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <span class="text-sm text-gray-500">{{ review.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <p class="text-gray-700">{{ review.comment }}</p>
+                    </div>
+                {% endfor %}
+                
+                {% if reviews.count > 5 %}
+                    <p class="text-sm text-gray-500 text-center">
+                        Showing 5 of {{ reviews.count }} reviews
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Product Image and Quick Stats -->
+    <div class="lg:col-span-1">
+        <!-- Product Image -->
+        <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Product Image</h3>
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" 
+                     class="w-full h-64 object-cover rounded-lg">
+            {% else %}
+                <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300 hover:border-gray-400 transition cursor-pointer" 
+                     onclick="document.getElementById('imageUpload').click()">
+                    <div class="text-center">
+                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                        <p class="text-gray-500 mb-2">No image available</p>
+                        <p class="text-sm text-blue-600 font-medium">Click to upload photo from device</p>
+                    </div>
+                </div>
+                
+                <!-- Hidden file input -->
+                <form id="imageUploadForm" method="post" enctype="multipart/form-data" action="{% url 'admin_product_edit' product.id %}" class="hidden">
+                    {% csrf_token %}
+                    <input type="file" id="imageUpload" name="image" accept="image/*" onchange="uploadImage()">
+                </form>
+            {% endif %}
+        </div>
+        
+        <!-- Quick Actions intentionally removed to avoid duplicate edit buttons -->
+    </div>
+</div>
+
+<script>
+function uploadImage() {
+    const fileInput = document.getElementById('imageUpload');
+    const file = fileInput.files[0];
+    
+    if (file) {
+        // Validate file type
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Please select a valid image file (JPEG, PNG, GIF, or WebP).');
+            return;
+        }
+        
+        // Validate file size (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+        if (file.size > maxSize) {
+            alert('File size must be less than 5MB.');
+            return;
+        }
+        
+        // Show loading indicator
+        const uploadArea = document.querySelector('.cursor-pointer');
+        const originalContent = uploadArea.innerHTML;
+        uploadArea.innerHTML = `
+            <div class="text-center">
+                <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-2"></i>
+                <p class="text-blue-600 font-medium">Uploading image...</p>
+            </div>
+        `;
+        uploadArea.style.pointerEvents = 'none';
+        
+        // Submit the form
+        const form = document.getElementById('imageUploadForm');
+        const formData = new FormData(form);
+        formData.append('upload_image', 'true');
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Reload the page to show the new image
+                window.location.reload();
+            } else {
+                alert('Error uploading image: ' + (data.error || 'Unknown error'));
+                // Restore original content
+                uploadArea.innerHTML = originalContent;
+                uploadArea.style.pointerEvents = 'auto';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error uploading image. Please try again.');
+            // Restore original content
+            uploadArea.innerHTML = originalContent;
+            uploadArea.style.pointerEvents = 'auto';
+        });
+    }
+}
+</script>
+
+{% endblock %}
