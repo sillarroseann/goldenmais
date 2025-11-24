@@ -65,11 +65,12 @@ WSGI_APPLICATION = 'golden_mais.wsgi.application'
 import dj_database_url
 
 # Use PostgreSQL on Render, SQLite locally
-if os.getenv('DATABASE_URL'):
+database_url = os.getenv('DATABASE_URL', '').strip()
+if database_url:
     # Production: Use PostgreSQL from Render
     DATABASES = {
         'default': dj_database_url.config(
-            default=os.getenv('DATABASE_URL'),
+            default=database_url,
             conn_max_age=600,
             conn_health_checks=True,
         )
