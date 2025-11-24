@@ -323,22 +323,36 @@
                 // Update minus button state
                 const minusBtn = buttons[0];
                 minusBtn.disabled = data.new_quantity <= 1;
+                
+                // Update plus button state based on max quantity
+                const plusBtn = buttons[1];
+                if (data.max_quantity) {
+                    plusBtn.disabled = data.new_quantity >= data.max_quantity;
+                }
             } else {
                 // Restore original quantity on error
                 quantityDisplay.textContent = originalQuantity;
-                alert('Error updating cart. Please try again.');
+                alert(data.error || 'Error updating cart. Please try again.');
+                
+                // Re-enable buttons
+                buttons.forEach(btn => btn.disabled = false);
             }
         })
         .catch(error => {
             console.error('Error:', error);
             quantityDisplay.textContent = originalQuantity;
             alert('Error updating cart. Please try again.');
+            
+            // Re-enable buttons
+            buttons.forEach(btn => btn.disabled = false);
         })
         .finally(() => {
-            // Re-enable buttons
+            // Re-enable buttons if not already done
             buttons.forEach(btn => {
                 if (btn === buttons[0] && newQuantity <= 1) {
                     btn.disabled = true;
+                } else if (btn === buttons[1]) {
+                    // Plus button will be handled in success block
                 } else {
                     btn.disabled = false;
                 }

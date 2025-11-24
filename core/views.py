@@ -296,6 +296,21 @@ def add_to_cart(request, product_id):
         if form.is_valid():
             quantity = form.cleaned_data['quantity']
             
+            # Validate stock availability
+            if quantity > product.stock_quantity:
+                error_msg = f'Only {product.stock_quantity} in stock for {product.name}.'
+                is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+                
+                if is_ajax:
+                    return JsonResponse({
+                        'success': False,
+                        'error': error_msg,
+                        'max_quantity': product.stock_quantity
+                    })
+                else:
+                    messages.error(request, error_msg)
+                    return redirect('product_detail', slug=product.slug)
+            
             # Get or create cart
             cart, created = Cart.objects.get_or_create(customer=customer)
             
@@ -307,6 +322,22 @@ def add_to_cart(request, product_id):
             )
             
             if not created:
+                # Check if total quantity would exceed stock
+                new_total = cart_item.quantity + quantity
+                if new_total > product.stock_quantity:
+                    error_msg = f'Cannot add {quantity}. Only {product.stock_quantity - cart_item.quantity} more available.'
+                    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+                    
+                    if is_ajax:
+                        return JsonResponse({
+                            'success': False,
+                            'error': error_msg,
+                            'max_quantity': product.stock_quantity - cart_item.quantity
+                        })
+                    else:
+                        messages.error(request, error_msg)
+                        return redirect('product_detail', slug=product.slug)
+                
                 cart_item.quantity += quantity
                 cart_item.save()
             
@@ -396,6 +427,18 @@ def update_cart_item(request, item_id):
     """Update cart item quantity"""
     cart_item = get_object_or_404(CartItem, id=item_id, cart__customer__user=request.user)
     quantity = int(request.POST.get('quantity', 1))
+    
+    # Validate stock availability
+    if quantity > cart_item.product.stock_quantity:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'error': f'Only {cart_item.product.stock_quantity} in stock. Cannot add {quantity}.',
+                'max_quantity': cart_item.product.stock_quantity
+            })
+        else:
+            messages.error(request, f'Only {cart_item.product.stock_quantity} in stock for {cart_item.product.name}.')
+            return redirect('cart')
     
     if quantity > 0:
         cart_item.quantity = quantity
