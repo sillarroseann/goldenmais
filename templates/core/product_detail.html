@@ -334,9 +334,47 @@
         return cookieValue;
     }
 
+    // Enforce max quantity on input change
+    document.addEventListener('DOMContentLoaded', function() {
+        const quantityInput = document.getElementById('quantity-input');
+        if (quantityInput) {
+            quantityInput.addEventListener('change', function() {
+                const max = parseInt(this.max);
+                const value = parseInt(this.value);
+                if (value > max) {
+                    this.value = max;
+                    showMessage(`Maximum quantity is ${max}. Adjusted to ${max}.`, 'warning');
+                }
+            });
+            
+            quantityInput.addEventListener('input', function() {
+                const max = parseInt(this.max);
+                const value = parseInt(this.value);
+                if (value > max) {
+                    this.value = max;
+                }
+            });
+        }
+    });
+
     // Add to Cart function (AJAX - no redirect)
     function addToCart(productId) {
-        const quantity = document.getElementById('quantity-input').value;
+        const quantityInput = document.getElementById('quantity-input');
+        const quantity = parseInt(quantityInput.value);
+        const maxQuantity = parseInt(quantityInput.max);
+        
+        // Validate quantity
+        if (quantity > maxQuantity) {
+            showMessage(`Cannot order more than ${maxQuantity} units. Maximum available is ${maxQuantity}.`, 'error');
+            quantityInput.value = maxQuantity;
+            return;
+        }
+        
+        if (quantity < 1) {
+            showMessage('Please enter a valid quantity.', 'error');
+            return;
+        }
+        
         const button = document.getElementById('add-to-cart-btn');
         const originalText = button.innerHTML;
         
@@ -380,7 +418,7 @@
                     button.disabled = false;
                 }, 2000);
             } else {
-                showMessage('Error adding to cart. Please try again.', 'error');
+                showMessage(data.error || 'Error adding to cart. Please try again.', 'error');
                 button.innerHTML = originalText;
                 button.disabled = false;
             }
@@ -395,7 +433,22 @@
 
     // Buy Now function (TikTok-style direct checkout)
     function buyNow(productId) {
-        const quantity = document.getElementById('quantity-input').value;
+        const qtyInput = document.getElementById('quantity-input');
+        const quantity = parseInt(qtyInput.value);
+        const maxQuantity = parseInt(qtyInput.max);
+        
+        // Validate quantity
+        if (quantity > maxQuantity) {
+            showMessage(`Cannot order more than ${maxQuantity} units. Maximum available is ${maxQuantity}.`, 'error');
+            qtyInput.value = maxQuantity;
+            return;
+        }
+        
+        if (quantity < 1) {
+            showMessage('Please enter a valid quantity.', 'error');
+            return;
+        }
+        
         const button = document.getElementById('buy-now-btn');
         const originalText = button.innerHTML;
         

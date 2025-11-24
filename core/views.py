@@ -261,6 +261,11 @@ def customer_login(request):
     """Custom customer login view with auto-redirect for logged-in users"""
     # If user is already logged in, redirect to home
     if request.user.is_authenticated:
+        if request.user.is_staff:
+            # Staff users should not access customer login
+            logout(request)
+            messages.info(request, 'Admin users must use the admin login.')
+            return redirect('admin_login')
         return redirect('home')
     
     if request.method == 'POST':
@@ -274,6 +279,11 @@ def customer_login(request):
         
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            # Prevent staff users from logging in as customers
+            if user.is_staff:
+                messages.error(request, 'Admin users must use the admin login page.')
+                return render(request, 'registration/login.html')
+            
             login(request, user)
             # Ensure session is saved
             request.session.modified = True
@@ -715,7 +725,6 @@ def admin_product_add(request):
 def admin_product_edit(request, product_id):
     """Admin product edit view"""
     product = get_object_or_404(Product, id=product_id)
-    categories = Category.objects.all()
     
     if request.method == 'POST':
         # Update product fields
@@ -724,11 +733,6 @@ def admin_product_edit(request, product_id):
         product.price = request.POST.get('price')
         product.stock_quantity = request.POST.get('stock_quantity')
         product.product_type = request.POST.get('product_type')
-        
-        # Handle category
-        category_id = request.POST.get('category')
-        if category_id:
-            product.category = Category.objects.get(id=category_id)
         
         # Handle boolean fields
         product.is_featured = 'is_featured' in request.POST
@@ -746,7 +750,6 @@ def admin_product_edit(request, product_id):
     
     context = {
         'product': product,
-        'categories': categories,
         'product_types': Product.PRODUCT_TYPES,
     }
     return render(request, 'admin/product_edit.html', context)
