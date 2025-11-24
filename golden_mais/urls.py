@@ -5,10 +5,13 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('django-admin/', admin.site.urls),  # Move Django admin to different URL
     path('', include('core.urls')),
+    # Google Search Console verification
+    path('google4d1a4abd9adf2e93.html', TemplateView.as_view(template_name='google4d1a4abd9adf2e93.html', content_type='text/html')),
 ]
 
 if settings.DEBUG:

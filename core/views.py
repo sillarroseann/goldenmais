@@ -264,12 +264,19 @@ def customer_login(request):
         return redirect('home')
     
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        
+        # Validate input
+        if not username or not password:
+            messages.error(request, 'Please enter both username and password.')
+            return render(request, 'registration/login.html')
         
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            # Ensure session is saved
+            request.session.modified = True
             messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
             return redirect('home')
         else:
@@ -496,12 +503,19 @@ def admin_login(request):
         messages.info(request, 'Please login with admin credentials.')
     
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
+        username = request.POST.get('username', '').strip()
+        password = request.POST.get('password', '').strip()
+        
+        # Validate input
+        if not username or not password:
+            messages.error(request, 'Please enter both username and password.')
+            return render(request, 'admin/login.html')
         
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_staff:
             login(request, user)
+            # Ensure session is saved
+            request.session.modified = True
             messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
             return redirect('admin_dashboard')
         else:

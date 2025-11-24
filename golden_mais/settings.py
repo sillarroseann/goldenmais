@@ -112,3 +112,11 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Admin URLs
 ADMIN_LOGIN_URL = '/admin/login/'
+
+# Session configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 1209600  # 2 weeks
+SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_SAVE_EVERY_REQUEST = True  # Save session on every request
