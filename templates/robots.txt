@@ -1,0 +1,17 @@
+User-agent: *
+Allow: /
+Disallow: /admin-login/
+Disallow: /admin-register/
+Disallow: /admin-dashboard/
+Disallow: /admin-products/
+Disallow: /admin-product-add/
+Disallow: /admin-product-edit/
+Disallow: /admin-product-view/
+Disallow: /django-admin/
+Disallow: /cart/
+Disallow: /checkout/
+Disallow: /profile/
+Disallow: /messages/
+
+# Sitemap location
+Sitemap: https://goldenmais.onrender.com/sitemap.xml
