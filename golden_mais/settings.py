@@ -69,12 +69,10 @@ database_url = os.getenv('DATABASE_URL', '').strip()
 if database_url:
     # Production: Use PostgreSQL from Render
     DATABASES = {
-        'default': dj_database_url.config(
-            default=database_url,
-            conn_max_age=600,
-            conn_health_checks=True,
-        )
+        'default': dj_database_url.parse(database_url)
     }
+    DATABASES['default']['CONN_MAX_AGE'] = 600
+    DATABASES['default']['CONN_HEALTH_CHECKS'] = True
 else:
     # Development: Use SQLite locally
     DATABASES = {
