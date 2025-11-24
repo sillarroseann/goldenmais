@@ -11,55 +11,69 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('SETTING UP SEPARATE ADMIN AND CUSTOMER ACCOUNTS'))
         self.stdout.write(self.style.SUCCESS('=' * 60))
 
-        # Delete any existing test accounts to start fresh
-        User.objects.filter(username__in=['admin_ann', 'customer_ann']).delete()
-
-        # Create Admin Account
-        self.stdout.write('\n1. Creating Admin Account...')
-        admin_user = User.objects.create_user(
+        # Create Admin Account (only if it doesn't exist)
+        self.stdout.write('\n1. Checking Admin Account...')
+        admin_user, admin_created = User.objects.get_or_create(
             username='admin_ann',
-            email='admin@goldenmais.com',
-            password='AdminPass123!',
-            first_name='Ann',
-            last_name='Admin',
-            is_staff=True,
-            is_superuser=True,
-            is_active=True
+            defaults={
+                'email': 'admin@goldenmais.com',
+                'first_name': 'Ann',
+                'last_name': 'Admin',
+                'is_staff': True,
+                'is_superuser': True,
+                'is_active': True
+            }
         )
-        self.stdout.write(self.style.SUCCESS('   ✓ Admin account created:'))
-        self.stdout.write(f'     Username: {admin_user.username}')
-        self.stdout.write(f'     Email: {admin_user.email}')
-        self.stdout.write(f'     Password: AdminPass123!')
-        self.stdout.write(f'     is_staff: {admin_user.is_staff}')
-        self.stdout.write(f'     is_superuser: {admin_user.is_superuser}')
+        
+        if admin_created:
+            admin_user.set_password('AdminPass123!')
+            admin_user.save()
+            self.stdout.write(self.style.SUCCESS('   ✓ Admin account CREATED:'))
+            self.stdout.write(f'     Username: {admin_user.username}')
+            self.stdout.write(f'     Email: {admin_user.email}')
+            self.stdout.write(f'     Password: AdminPass123!')
+        else:
+            self.stdout.write(self.style.WARNING('   ℹ Admin account already exists (not modified):'))
+            self.stdout.write(f'     Username: {admin_user.username}')
+            self.stdout.write(f'     Email: {admin_user.email}')
 
-        # Create Customer Account
-        self.stdout.write('\n2. Creating Customer Account...')
-        customer_user = User.objects.create_user(
+        # Create Customer Account (only if it doesn't exist)
+        self.stdout.write('\n2. Checking Customer Account...')
+        customer_user, customer_created = User.objects.get_or_create(
             username='customer_ann',
-            email='customer@goldenmais.com',
-            password='CustomerPass123!',
-            first_name='Ann',
-            last_name='Customer',
-            is_staff=False,
-            is_superuser=False,
-            is_active=True
+            defaults={
+                'email': 'customer@goldenmais.com',
+                'first_name': 'Ann',
+                'last_name': 'Customer',
+                'is_staff': False,
+                'is_superuser': False,
+                'is_active': True
+            }
         )
 
-        # Create customer profile
-        customer_profile = Customer.objects.create(
-            user=customer_user,
-            phone='09123456789',
-            address='Sample Address',
-            city='Manila'
-        )
-
-        self.stdout.write(self.style.SUCCESS('   ✓ Customer account created:'))
-        self.stdout.write(f'     Username: {customer_user.username}')
-        self.stdout.write(f'     Email: {customer_user.email}')
-        self.stdout.write(f'     Password: CustomerPass123!')
-        self.stdout.write(f'     is_staff: {customer_user.is_staff}')
-        self.stdout.write(f'     Customer Profile: Created')
+        if customer_created:
+            customer_user.set_password('CustomerPass123!')
+            customer_user.save()
+            
+            # Create customer profile
+            customer_profile, _ = Customer.objects.get_or_create(
+                user=customer_user,
+                defaults={
+                    'phone': '09123456789',
+                    'address': 'Sample Address',
+                    'city': 'Manila'
+                }
+            )
+            
+            self.stdout.write(self.style.SUCCESS('   ✓ Customer account CREATED:'))
+            self.stdout.write(f'     Username: {customer_user.username}')
+            self.stdout.write(f'     Email: {customer_user.email}')
+            self.stdout.write(f'     Password: CustomerPass123!')
+            self.stdout.write(f'     Customer Profile: Created')
+        else:
+            self.stdout.write(self.style.WARNING('   ℹ Customer account already exists (not modified):'))
+            self.stdout.write(f'     Username: {customer_user.username}')
+            self.stdout.write(f'     Email: {customer_user.email}')
 
         self.stdout.write('\n' + '=' * 60)
         self.stdout.write(self.style.SUCCESS('ACCOUNT SETUP COMPLETE!'))
