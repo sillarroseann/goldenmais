@@ -517,7 +517,9 @@ def admin_login(request):
             # Ensure session is saved
             request.session.modified = True
             messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
-            return redirect('admin_dashboard')
+            # Use next_page parameter if provided, otherwise go to dashboard
+            next_page = request.GET.get('next', 'admin_dashboard')
+            return redirect(next_page)
         else:
             messages.error(request, 'Invalid credentials or insufficient permissions.')
     

@@ -80,36 +80,33 @@
     </div>
 
     <script>
-    // Password show/hide functionality and form security
+    // Password show/hide functionality
     document.addEventListener('DOMContentLoaded', function() {
         const password = document.getElementById('password');
         const username = document.getElementById('username');
         const togglePassword = document.getElementById('togglePassword');
         const eyeIcon = document.getElementById('eyeIcon');
-        const form = document.querySelector('form');
-        
-        // Clear form fields on page load to prevent auto-fill
-        username.value = '';
-        password.value = '';
         
         // Disable browser password saving
-        username.setAttribute('autocomplete', 'off');
-        password.setAttribute('autocomplete', 'new-password');
+        if (username) username.setAttribute('autocomplete', 'off');
+        if (password) password.setAttribute('autocomplete', 'new-password');
         
         // Toggle password visibility
-        togglePassword.addEventListener('click', function() {
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            
-            // Toggle eye icon
-            if (type === 'text') {
-                eyeIcon.classList.remove('fa-eye');
-                eyeIcon.classList.add('fa-eye-slash');
-            } else {
-                eyeIcon.classList.remove('fa-eye-slash');
-                eyeIcon.classList.add('fa-eye');
-            }
-        });
+        if (togglePassword && password && eyeIcon) {
+            togglePassword.addEventListener('click', function() {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                
+                // Toggle eye icon
+                if (type === 'text') {
+                    eyeIcon.classList.remove('fa-eye');
+                    eyeIcon.classList.add('fa-eye-slash');
+                } else {
+                    eyeIcon.classList.remove('fa-eye-slash');
+                    eyeIcon.classList.add('fa-eye');
+                }
+            });
+        }
     });
     </script>
 </body>

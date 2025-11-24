@@ -109,17 +109,12 @@
 </div>
 
 <script>
-// Password show/hide functionality and form security
+// Password show/hide functionality
 document.addEventListener('DOMContentLoaded', function() {
     const password = document.getElementById('password');
     const username = document.getElementById('username');
     const togglePassword = document.getElementById('togglePassword');
     const eyeIcon = document.getElementById('eyeIcon');
-    const form = document.querySelector('form');
-    
-    // Clear form fields on page load to prevent auto-fill
-    if (username) username.value = '';
-    if (password) password.value = '';
     
     // Disable browser password saving
     if (username) username.setAttribute('autocomplete', 'off');
