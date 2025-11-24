@@ -25,10 +25,17 @@ class AdminSessionSeparationMiddleware:
         if not request.user.is_authenticated or not request.user.is_staff:
             return False
         path = request.path or ''
+        # Allow admin routes
         if path.startswith('/admin'):
             return False
+        # Allow static and media files
         if self.static_prefix and path.startswith(self.static_prefix):
             return False
         if self.media_prefix and path.startswith(self.media_prefix):
             return False
-        return True
+        # Allow logout endpoint
+        if path == '/logout/':
+            return False
+        # Don't force logout - let staff users browse the site
+        # This middleware is too aggressive and causes session issues
+        return False

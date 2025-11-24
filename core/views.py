@@ -257,6 +257,27 @@ def signup(request):
     return render(request, 'registration/signup.html', context)
 
 
+def customer_login(request):
+    """Custom customer login view with auto-redirect for logged-in users"""
+    # If user is already logged in, redirect to home
+    if request.user.is_authenticated:
+        return redirect('home')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'registration/login.html')
+
+
 @login_required
 def add_to_cart(request, product_id):
     """Add product to cart"""
@@ -465,6 +486,10 @@ def admin_redirect(request):
 
 def admin_login(request):
     """Admin login page"""
+    # If user is already logged in as staff, redirect to dashboard
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect('admin_dashboard')
+    
     # If user is authenticated but not staff, logout first to allow admin login
     if request.user.is_authenticated and not request.user.is_staff:
         logout(request)
