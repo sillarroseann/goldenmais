@@ -66,13 +66,22 @@ import dj_database_url
 
 # Use PostgreSQL on Render, SQLite locally
 database_url = os.getenv('DATABASE_URL', '').strip()
-if database_url:
+if database_url and database_url != '':
     # Production: Use PostgreSQL from Render
-    DATABASES = {
-        'default': dj_database_url.parse(database_url)
-    }
-    DATABASES['default']['CONN_MAX_AGE'] = 600
-    DATABASES['default']['CONN_HEALTH_CHECKS'] = True
+    try:
+        DATABASES = {
+            'default': dj_database_url.parse(database_url)
+        }
+        DATABASES['default']['CONN_MAX_AGE'] = 600
+        DATABASES['default']['CONN_HEALTH_CHECKS'] = True
+    except ValueError:
+        # Fallback to SQLite if URL parsing fails
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / 'db.sqlite3',
+            }
+        }
 else:
     # Development: Use SQLite locally
     DATABASES = {
