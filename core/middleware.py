@@ -3,11 +3,11 @@ from django.contrib.auth import logout
 
 
 class AdminSessionSeparationMiddleware:
-    """Logs out staff users automatically when they leave admin routes.
-
-    This keeps storefront sessions separate from admin sessions by ensuring
-    that authenticated staff users are signed out as soon as they visit any
-    non-admin URL.
+    """Keeps admin and customer sessions completely separate.
+    
+    Admin users (staff=True) can only access admin routes.
+    Customer users (staff=False) can only access customer routes.
+    This prevents admins from accessing customer data and vice versa.
     """
 
     def __init__(self, get_response):
@@ -16,26 +16,27 @@ class AdminSessionSeparationMiddleware:
         self.media_prefix = getattr(settings, 'MEDIA_URL', '/media/') or '/media/'
 
     def __call__(self, request):
-        if self._should_force_logout(request):
+        # Check if user is trying to access admin routes without being staff
+        if self._should_redirect_to_login(request):
             logout(request)
         response = self.get_response(request)
         return response
 
-    def _should_force_logout(self, request):
-        if not request.user.is_authenticated or not request.user.is_staff:
+    def _should_redirect_to_login(self, request):
+        """Logout customer users trying to access admin routes"""
+        if not request.user.is_authenticated:
             return False
+        
         path = request.path or ''
-        # Allow admin routes
-        if path.startswith('/admin'):
-            return False
-        # Allow static and media files
+        
+        # Allow static and media files for everyone
         if self.static_prefix and path.startswith(self.static_prefix):
             return False
         if self.media_prefix and path.startswith(self.media_prefix):
             return False
-        # Allow logout endpoint
-        if path == '/logout/':
-            return False
-        # Don't force logout - let staff users browse the site
-        # This middleware is too aggressive and causes session issues
+        
+        # If user is NOT staff and tries to access admin routes, logout
+        if path.startswith('/admin') and not request.user.is_staff:
+            return True
+        
         return False
