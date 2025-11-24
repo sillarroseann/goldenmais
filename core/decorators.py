@@ -10,8 +10,8 @@ def admin_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         if not request.user.is_authenticated:
-            from django.contrib.auth.views import redirect_to_login
-            return redirect_to_login(request.get_full_path())
+            from django.shortcuts import redirect
+            return redirect('admin_login')
         
         if not request.user.is_staff:
             raise PermissionDenied("You don't have permission to access this page.")
