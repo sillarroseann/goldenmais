@@ -141,30 +141,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
-    // Clear form after submission attempt (whether successful or not)
-    if (form) {
-        form.addEventListener('submit', function() {
-            setTimeout(function() {
-                if (username) username.value = '';
-                if (password) password.value = '';
-            }, 100);
-        });
-    }
-    
-    // Clear form when page becomes visible (e.g., back button)
-    document.addEventListener('visibilitychange', function() {
-        if (!document.hidden) {
-            if (username) username.value = '';
-            if (password) password.value = '';
-        }
-    });
-    
-    // Prevent form data from being cached
-    window.addEventListener('beforeunload', function() {
-        if (username) username.value = '';
-        if (password) password.value = '';
-    });
 });
 </script>
 {% endblock %}
