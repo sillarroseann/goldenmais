@@ -114,72 +114,48 @@
 <!-- Recent Activity -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Recent Orders -->
+    {% if recent_orders %}
     <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
         <div class="space-y-3">
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+            {% for order in recent_orders %}
+            <a href="{% url 'admin_order_details' order.id %}" class="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
                 <div>
-                    <p class="text-sm font-medium">#E6BE4C6B</p>
-                    <p class="text-xs text-gray-500">Rose Ann Sillar</p>
+                    <p class="text-sm font-medium">#{{ order.order_number }}</p>
+                    <p class="text-xs text-gray-500">{{ order.customer.user.get_full_name|default:order.customer.user.username }}</p>
                 </div>
-                <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Order Placed</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <div>
-                    <p class="text-sm font-medium">#76E22506</p>
-                    <p class="text-xs text-gray-500">Rose Ann Sillar</p>
-                </div>
-                <span class="text-xs px-2 py-1 rounded-full bg-yellow-100 text-yellow-800">Order Placed</span>
-            </div>
-            <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
-                <div>
-                    <p class="text-sm font-medium">#BAC61F12</p>
-                    <p class="text-xs text-gray-500">Rose Ann Sillar</p>
-                </div>
-                <span class="text-xs px-2 py-1 rounded-full bg-green-100 text-green-800">Order Confirmed</span>
-            </div>
+                <span class="text-xs px-2 py-1 rounded-full {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif order.status == 'confirmed' %}bg-blue-100 text-blue-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">{{ order.get_status_display }}</span>
+            </a>
+            {% endfor %}
         </div>
         <div class="mt-4">
             <a href="{% url 'admin_orders' %}" class="text-sm text-blue-600 hover:text-blue-800">View all orders →</a>
         </div>
     </div>
+    {% endif %}
 
     <!-- Recent Customers -->
+    {% if recent_customers %}
     <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Customers</h3>
         <div class="space-y-3">
-            <div class="flex items-center p-3 bg-gray-50 rounded">
+            {% for customer in recent_customers %}
+            <a href="{% url 'admin_customer_view' customer.id %}" class="flex items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
                 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-blue-600 font-medium text-sm">N</span>
+                    <span class="text-blue-600 font-medium text-sm">{{ customer.user.first_name|first|upper }}</span>
                 </div>
                 <div>
-                    <p class="text-sm font-medium">Nhaiomi Escueta</p>
-                    <p class="text-xs text-gray-500">nhaiomiescueta27@gmail.com</p>
+                    <p class="text-sm font-medium">{{ customer.user.get_full_name|default:customer.user.username }}</p>
+                    <p class="text-xs text-gray-500">{{ customer.user.email }}</p>
                 </div>
-            </div>
-            <div class="flex items-center p-3 bg-gray-50 rounded">
-                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-green-600 font-medium text-sm">A</span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium">Ann Pedida</p>
-                    <p class="text-xs text-gray-500">annpedida30@gmail.com</p>
-                </div>
-            </div>
-            <div class="flex items-center p-3 bg-gray-50 rounded">
-                <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-purple-600 font-medium text-sm">R</span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium">Rose Ann Sillar</p>
-                    <p class="text-xs text-gray-500">sillarroseann7@gmail.com</p>
-                </div>
-            </div>
+            </a>
+            {% endfor %}
         </div>
         <div class="mt-4">
             <a href="{% url 'admin_customers' %}" class="text-sm text-blue-600 hover:text-blue-800">View all customers →</a>
         </div>
     </div>
+    {% endif %}
 
     <!-- Recent Reviews -->
     <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
