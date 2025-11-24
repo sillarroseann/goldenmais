@@ -606,7 +606,6 @@ def admin_product_add(request):
             price=request.POST.get('price'),
             stock_quantity=request.POST.get('stock_quantity'),
             product_type=request.POST.get('product_type'),
-            category=Category.objects.get(id=request.POST.get('category')),
             is_featured='is_featured' in request.POST,
             is_bestseller='is_bestseller' in request.POST,
             is_new='is_new' in request.POST,
