@@ -1090,6 +1090,35 @@ def update_order_status(request, order_id):
     return redirect('admin_orders')
 
 
+@admin_required
+def cancel_order(request, order_id):
+    """Cancel an order"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.method == 'POST':
+        # Only allow cancellation if order is not already delivered or cancelled
+        if order.status not in ('delivered', 'cancelled'):
+            old_status = order.status
+            order.status = 'cancelled'
+            order.save()
+            
+            # Create tracking update
+            cancellation_reason = request.POST.get('cancellation_reason', 'Order cancelled by admin')
+            OrderTracking.objects.create(
+                order=order,
+                status='cancelled',
+                message=cancellation_reason,
+                location='Golden Mais Farm, Calubian, Leyte',
+                updated_by=request.user.get_full_name() or request.user.username
+            )
+            
+            messages.success(request, f'Order #{order.order_number} has been cancelled.')
+        else:
+            messages.error(request, f'Cannot cancel order #{order.order_number}. Order is already {order.get_status_display()}.')
+    
+    return redirect('admin_order_details', order_id=order_id)
+
+
 @login_required
 def checkout(request):
     """Checkout view"""
@@ -1126,17 +1155,79 @@ def checkout(request):
         payment_method = request.POST.get('payment_method', 'cash')
         payment_confirmed = request.POST.get('payment_confirmed') == 'true'
 
-        if payment_method in ('gcash', 'maya') and not payment_confirmed:
-            messages.error(request, 'Please complete your GCash or PayMaya payment before placing your order.')
+        # Validate stock availability for all items
+        stock_errors = []
+        for cart_item in cart_items:
+            if cart_item.quantity > cart_item.product.stock_quantity:
+                stock_errors.append(
+                    f"{cart_item.product.name}: Only {cart_item.product.stock_quantity} in stock, "
+                    f"but you ordered {cart_item.quantity}."
+                )
+        
+        if stock_errors:
+            for error in stock_errors:
+                messages.error(request, error)
             context = _checkout_context(
                 preselected_payment=payment_method,
                 selected_delivery_method=delivery_method,
                 phone_value=phone,
                 delivery_address_value=delivery_address,
                 notes_value=notes,
-                digital_payment_error=True,
             )
             return render(request, 'core/checkout.html', context)
+
+        if payment_method in ('gcash', 'maya'):
+            # Redirect to GCash/PayMaya with phone number and order details
+            order_items_text = '\n'.join([
+                f"- {item.product.name}: {item.quantity}x ₱{item.product.price}"
+                for item in cart_items
+            ])
+            delivery_fee = Decimal('50.00') if delivery_method == 'delivery' else Decimal('0.00')
+            total = subtotal + delivery_fee
+            
+            message = f"Golden Mais Order:\n{order_items_text}\nDelivery: ₱{delivery_fee}\nTotal: ₱{total}"
+            phone_number = "09631186511"
+            
+            # For GCash/PayMaya, redirect to messaging app with order details
+            import urllib.parse
+            encoded_message = urllib.parse.quote(message)
+            
+            # Create order first to track the payment attempt
+            order = Order.objects.create(
+                customer=customer,
+                delivery_method=delivery_method,
+                delivery_address=delivery_address,
+                phone=phone,
+                notes=notes,
+                status='pending',
+                subtotal=subtotal,
+                delivery_fee=delivery_fee,
+                total=total
+            )
+            
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product.price
+                )
+            
+            OrderTracking.objects.create(
+                order=order,
+                status='pending',
+                message='Order placed. Awaiting payment via GCash/PayMaya. Please send payment to the provided number.',
+                location='Golden Mais Farm, Calubian, Leyte',
+                updated_by='System'
+            )
+            
+            # Clear cart
+            cart_items.delete()
+            
+            messages.success(request, f'Order #{order.order_number} created! Please send payment via GCash/PayMaya.')
+            
+            # Redirect to messaging (SMS/WhatsApp)
+            return redirect(f'https://wa.me/{phone_number}?text={encoded_message}')
 
         # Update customer phone if provided
         if phone and phone != customer.phone:

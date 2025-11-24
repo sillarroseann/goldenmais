@@ -54,6 +54,7 @@ urlpatterns = [
     path('admin-product-quick-stock/', views.admin_quick_stock_update, name='admin_quick_stock_update'),
     path('admin-orders/', views.admin_orders, name='admin_orders'),
     path('admin-order-details/<int:order_id>/', views.admin_order_details, name='admin_order_details'),
+    path('admin-order-cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
     path('admin-customers/', views.admin_customers, name='admin_customers'),
     path('admin-customer-edit/<int:customer_id>/', views.admin_customer_edit, name='admin_customer_edit'),
     path('admin-customer-view/<int:customer_id>/', views.admin_customer_view, name='admin_customer_view'),
