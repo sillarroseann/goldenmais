@@ -119,7 +119,7 @@ def products(request):
 def product_detail(request, slug):
     """Individual product detail page"""
     product = get_object_or_404(Product, slug=slug)
-    reviews = product.reviews.all()[:5]
+    reviews = product.reviews.all().order_by('-created_at')[:5]
     related_products = Product.objects.filter(
         category=product.category
     ).exclude(id=product.id)[:4]
@@ -301,6 +301,21 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     customer, created = Customer.objects.get_or_create(user=request.user)
     
+    # Check if product is out of stock
+    if product.stock_quantity == 0:
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        error_msg = f'{product.name} is currently out of stock.'
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'error': error_msg,
+                'out_of_stock': True
+            })
+        else:
+            messages.error(request, error_msg)
+            return redirect('product_detail', slug=product.slug)
+    
     if request.method == 'POST':
         form = AddToCartForm(request.POST)
         if form.is_valid():
@@ -393,10 +408,20 @@ def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     customer, created = Customer.objects.get_or_create(user=request.user)
     
+    # Check if product is out of stock
+    if product.stock_quantity == 0:
+        messages.error(request, f'{product.name} is currently out of stock.')
+        return redirect('product_detail', slug=product.slug)
+    
     if request.method == 'POST':
         form = AddToCartForm(request.POST)
         if form.is_valid():
             quantity = form.cleaned_data['quantity']
+            
+            # Validate stock availability
+            if quantity > product.stock_quantity:
+                messages.error(request, f'Only {product.stock_quantity} in stock for {product.name}.')
+                return redirect('product_detail', slug=product.slug)
             
             # Create a temporary cart item for direct checkout
             temp_cart_item = {
@@ -1218,18 +1243,6 @@ def checkout(request):
         if stock_errors:
             for error in stock_errors:
                 messages.error(request, error)
-            context = _checkout_context(
-                preselected_payment=payment_method,
-                selected_delivery_method=delivery_method,
-                phone_value=phone,
-                delivery_address_value=delivery_address,
-                notes_value=notes,
-            )
-            return render(request, 'core/checkout.html', context)
-
-        # Require digital payment (GCash or PayMaya)
-        if payment_method not in ('gcash', 'maya'):
-            messages.error(request, 'Payment must be through GCash or PayMaya. Cash on Delivery is not available at this time.')
             context = _checkout_context(
                 preselected_payment=payment_method,
                 selected_delivery_method=delivery_method,

@@ -93,9 +93,14 @@
                     <div class="mb-6">
                         <h3 class="text-lg font-medium mb-4">Payment Method</h3>
                         <div class="space-y-3">
-                            <div class="p-3 border border-gray-300 rounded-lg bg-gray-50">
-                                <p class="text-sm text-gray-600"><i class="fas fa-info-circle mr-2"></i>Only digital payments (GCash/PayMaya) are accepted</p>
-                            </div>
+                            <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <input type="radio" name="payment_method" value="cash" {% if preselected_payment == 'cash' %}checked{% endif %}
+                                       class="text-yellow-600 focus:ring-yellow-500">
+                                <span class="ml-3 flex items-center">
+                                    <i class="fas fa-money-bill-wave text-green-600 mr-2"></i>
+                                    <span class="font-medium">Cash on Delivery/Pickup</span>
+                                </span>
+                            </label>
                             
                             <label class="flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
                                 <input type="radio" name="payment_method" value="gcash" {% if preselected_payment == 'gcash' %}checked{% endif %}
@@ -114,8 +119,17 @@
                                     <span class="font-medium">Maya (PayMaya)</span>
                                 </span>
                             </label>
-                            
                         </div>
+                        
+                        <!-- Payment Notice -->
+                        <div id="payment-notice" class="mt-4 p-4 border-l-4 border-orange-500 bg-orange-50 rounded hidden">
+                            <p class="text-sm font-semibold text-orange-800">
+                                <i class="fas fa-exclamation-circle mr-2"></i>PLEASE PAY YOUR ORDER
+                            </p>
+                            <p class="text-xs text-orange-700 mt-1">You must complete payment through GCash or PayMaya before placing your order. Cash on Delivery is not available for online orders.</p>
+                        </div>
+                        
+                    </div>
                         
                         <!-- Payment Instructions -->
                         <div id="payment-instructions" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md" style="{% if preselected_payment == 'gcash' or preselected_payment == 'maya' %}display: block;{% else %}display: none;{% endif %}">
@@ -269,6 +283,28 @@
 </div>
 
 <script>
+// Handle payment method change to show notice
+document.addEventListener('DOMContentLoaded', function() {
+    const paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+    const paymentNotice = document.getElementById('payment-notice');
+    
+    paymentRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'gcash' || this.value === 'maya') {
+                paymentNotice.classList.remove('hidden');
+            } else {
+                paymentNotice.classList.add('hidden');
+            }
+        });
+    });
+    
+    // Show notice on page load if GCash/PayMaya is selected
+    const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+    if (selectedPayment && (selectedPayment.value === 'gcash' || selectedPayment.value === 'maya')) {
+        paymentNotice.classList.remove('hidden');
+    }
+});
+
 // Handle delivery method change
 document.addEventListener('DOMContentLoaded', function() {
     const deliveryRadios = document.querySelectorAll('input[name="delivery_method"]');
