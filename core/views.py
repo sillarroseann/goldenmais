@@ -695,6 +695,12 @@ def admin_product_add(request):
             slug = f"{original_slug}-{counter}"
             counter += 1
         
+        # Handle category
+        category_id = request.POST.get('category')
+        category = None
+        if category_id:
+            category = Category.objects.get(id=category_id)
+        
         product = Product.objects.create(
             name=name,
             slug=slug,
@@ -702,6 +708,7 @@ def admin_product_add(request):
             price=request.POST.get('price'),
             stock_quantity=request.POST.get('stock_quantity'),
             product_type=request.POST.get('product_type'),
+            category=category,
             is_featured='is_featured' in request.POST,
             is_bestseller='is_bestseller' in request.POST,
             is_new='is_new' in request.POST,
@@ -727,6 +734,7 @@ def admin_product_add(request):
 def admin_product_edit(request, product_id):
     """Admin product edit view"""
     product = get_object_or_404(Product, id=product_id)
+    categories = Category.objects.all()
     
     if request.method == 'POST':
         # Update product fields
@@ -735,6 +743,13 @@ def admin_product_edit(request, product_id):
         product.price = request.POST.get('price')
         product.stock_quantity = request.POST.get('stock_quantity')
         product.product_type = request.POST.get('product_type')
+        
+        # Handle category
+        category_id = request.POST.get('category')
+        if category_id:
+            product.category_id = category_id
+        else:
+            product.category = None
         
         # Handle boolean fields
         product.is_featured = 'is_featured' in request.POST
@@ -752,6 +767,7 @@ def admin_product_edit(request, product_id):
     
     context = {
         'product': product,
+        'categories': categories,
         'product_types': Product.PRODUCT_TYPES,
     }
     return render(request, 'admin/product_edit.html', context)
