@@ -114,48 +114,58 @@
 <!-- Recent Activity -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Recent Orders -->
-    {% if recent_orders %}
     <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Orders</h3>
-        <div class="space-y-3">
-            {% for order in recent_orders %}
-            <a href="{% url 'admin_order_details' order.id %}" class="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
-                <div>
-                    <p class="text-sm font-medium">#{{ order.order_number }}</p>
-                    <p class="text-xs text-gray-500">{{ order.customer.user.get_full_name|default:order.customer.user.username }}</p>
-                </div>
-                <span class="text-xs px-2 py-1 rounded-full {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif order.status == 'confirmed' %}bg-blue-100 text-blue-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">{{ order.get_status_display }}</span>
-            </a>
-            {% endfor %}
-        </div>
+        {% if recent_orders %}
+            <div class="space-y-3">
+                {% for order in recent_orders %}
+                <a href="{% url 'admin_order_details' order.id %}" class="flex justify-between items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
+                    <div>
+                        <p class="text-sm font-medium">#{{ order.order_number }}</p>
+                        <p class="text-xs text-gray-500">{{ order.customer.user.get_full_name|default:order.customer.user.username }}</p>
+                    </div>
+                    <span class="text-xs px-2 py-1 rounded-full {% if order.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif order.status == 'confirmed' %}bg-blue-100 text-blue-800{% elif order.status == 'delivered' %}bg-green-100 text-green-800{% else %}bg-gray-100 text-gray-800{% endif %}">{{ order.get_status_display }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-inbox text-gray-300 text-3xl mb-2"></i>
+                <p class="text-gray-500 text-sm">No recent orders</p>
+            </div>
+        {% endif %}
         <div class="mt-4">
             <a href="{% url 'admin_orders' %}" class="text-sm text-blue-600 hover:text-blue-800">View all orders →</a>
         </div>
     </div>
-    {% endif %}
 
     <!-- Recent Customers -->
-    {% if recent_customers %}
     <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Customers</h3>
-        <div class="space-y-3">
-            {% for customer in recent_customers %}
-            <a href="{% url 'admin_customer_view' customer.id %}" class="flex items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
-                <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                    <span class="text-blue-600 font-medium text-sm">{{ customer.user.first_name|first|upper }}</span>
-                </div>
-                <div>
-                    <p class="text-sm font-medium">{{ customer.user.get_full_name|default:customer.user.username }}</p>
-                    <p class="text-xs text-gray-500">{{ customer.user.email }}</p>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
+        {% if recent_customers %}
+            <div class="space-y-3">
+                {% for customer in recent_customers %}
+                <a href="{% url 'admin_customer_view' customer.id %}" class="flex items-center p-3 bg-gray-50 rounded hover:bg-gray-100 transition">
+                    <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                        <span class="text-blue-600 font-medium text-sm">{{ customer.user.first_name|first|upper }}</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-medium">{{ customer.user.get_full_name|default:customer.user.username }}</p>
+                        <p class="text-xs text-gray-500">{{ customer.user.email }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="text-center py-8">
+                <i class="fas fa-users text-gray-300 text-3xl mb-2"></i>
+                <p class="text-gray-500 text-sm">No recent customers</p>
+            </div>
+        {% endif %}
         <div class="mt-4">
             <a href="{% url 'admin_customers' %}" class="text-sm text-blue-600 hover:text-blue-800">View all customers →</a>
         </div>
     </div>
-    {% endif %}
 
     <!-- Recent Reviews -->
     <div class="floating-section bg-white rounded-lg shadow-sm border p-6">
@@ -194,8 +204,9 @@
                     <p class="text-[11px] text-gray-400 mt-2">{{ feedback.created_at|date:"M d, Y" }}</p>
                 </div>
             {% empty %}
-                <div class="p-4 bg-gray-50 rounded text-center text-gray-500 text-sm">
-                    No recent reviews yet.
+                <div class="p-8 bg-gray-50 rounded text-center">
+                    <i class="fas fa-star text-gray-300 text-3xl mb-2"></i>
+                    <p class="text-gray-500 text-sm">No recent reviews yet.</p>
                 </div>
             {% endfor %}
             <div class="pt-2 text-right">
