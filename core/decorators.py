@@ -1,6 +1,24 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from django.contrib import messages
 from functools import wraps
+
+
+def customer_only(view_func):
+    """
+    Decorator that forces admin users to logout and redirects them.
+    Ensures admin users cannot access customer pages.
+    """
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_staff:
+            logout(request)
+            messages.info(request, 'Admin users must use the admin dashboard. Please log in with customer credentials.')
+            return redirect('login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
 
 
 def admin_required(view_func):

@@ -17,7 +17,7 @@ from .models import Product, Customer, Cart, CartItem, Order, OrderItem, Contact
 # Payment imports - will be enabled after migration
 # from .payment_service import get_payment_service
 from .forms import ContactForm, CustomUserCreationForm, AddToCartForm, ReviewForm, AdminRegistrationForm
-from .decorators import admin_required
+from .decorators import admin_required, customer_only
 import random
 import string
 
@@ -28,6 +28,7 @@ def _is_feedback_response_subject(subject):
         return False
     return subject.strip().lower().startswith(FEEDBACK_RESPONSE_SUBJECT_PREFIX)
 
+@customer_only
 def home(request):
     """Homepage view with featured products and combos"""
     featured_products = Product.objects.filter(is_featured=True)[:3]

@@ -55,15 +55,15 @@
             <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">About</a>
             
             <!-- Shopping Cart - Always visible like common online shops -->
-            <a href="{% if user.is_authenticated %}{% url 'cart' %}{% else %}{% url 'login' %}{% endif %}" class="text-gray-700 hover:text-yellow-700 relative flex items-center px-2" title="Shopping Cart">
+            <a href="{% if user.is_authenticated and not user.is_staff %}{% url 'cart' %}{% else %}{% url 'login' %}{% endif %}" class="text-gray-700 hover:text-yellow-700 relative flex items-center px-2" title="Shopping Cart">
                 <span class="text-xl cart-icon-target">🛒</span>
-                <span class="cart-count-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 items-center justify-center font-semibold {% if user.is_authenticated and cart_items_count > 0 %}flex{% else %}hidden{% endif %}"
+                <span class="cart-count-badge absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 items-center justify-center font-semibold {% if user.is_authenticated and not user.is_staff and cart_items_count > 0 %}flex{% else %}hidden{% endif %}"
                       data-count="{{ cart_items_count|default:0 }}" data-visible-class="flex">
                     {{ cart_items_count|default:0 }}
                 </span>
             </a>
             
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and not user.is_staff %}
                 <div class="relative group dropdown-group">
                     <button class="text-gray-700 hover:text-yellow-700 flex items-center px-2 py-2">
                         <i class="fas fa-user mr-1"></i>
@@ -128,15 +128,15 @@
             <a href="{% url 'about' %}" class="block text-gray-700 hover:text-yellow-700">About</a>
             
             <!-- Shopping Cart - Always visible in mobile menu -->
-            <a href="{% if user.is_authenticated %}{% url 'cart' %}{% else %}{% url 'login' %}{% endif %}" class="block text-gray-700 hover:text-yellow-700 flex items-center">
+            <a href="{% if user.is_authenticated and not user.is_staff %}{% url 'cart' %}{% else %}{% url 'login' %}{% endif %}" class="block text-gray-700 hover:text-yellow-700 flex items-center">
                 <span class="mr-2 cart-icon-target">🛒</span>Shopping Cart
-                <span class="cart-count-badge bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-2 {% if user.is_authenticated and cart_items_count > 0 %}inline-flex{% else %}hidden{% endif %}"
+                <span class="cart-count-badge bg-red-500 text-white text-xs rounded-full px-2 py-1 ml-2 {% if user.is_authenticated and not user.is_staff and cart_items_count > 0 %}inline-flex{% else %}hidden{% endif %}"
                       data-count="{{ cart_items_count|default:0 }}" data-visible-class="inline-flex">
                     {{ cart_items_count|default:0 }}
                 </span>
             </a>
             
-            {% if user.is_authenticated %}
+            {% if user.is_authenticated and not user.is_staff %}
                 <a href="{% url 'profile' %}" class="block text-gray-700 hover:text-yellow-700">Profile</a>
                 <form method="post" action="{% url 'logout' %}" class="block">
                     {% csrf_token %}
