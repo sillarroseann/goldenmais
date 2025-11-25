@@ -602,6 +602,11 @@ def admin_register(request):
 @admin_required
 def admin_dashboard(request):
     """Admin dashboard with statistics"""
+    # Double-check that user is staff (security measure)
+    if not request.user.is_staff:
+        logout(request)
+        return redirect('login')
+    
     # Get statistics
     total_products = Product.objects.count()
     total_customers = Customer.objects.count()
