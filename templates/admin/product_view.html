@@ -20,6 +20,29 @@
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     <!-- Product Information -->
     <div class="lg:col-span-2">
+        <!-- Out of Stock Alert -->
+        {% if product.stock_quantity == 0 %}
+        <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6 rounded">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-circle text-red-600 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="font-semibold text-red-800">Out of Stock</h3>
+                    <p class="text-red-700 text-sm">This product is currently out of stock and unavailable for purchase.</p>
+                </div>
+            </div>
+        </div>
+        {% elif product.stock_quantity < 10 %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6 rounded">
+            <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl mr-3"></i>
+                <div>
+                    <h3 class="font-semibold text-yellow-800">Low Stock Warning</h3>
+                    <p class="text-yellow-700 text-sm">Only {{ product.stock_quantity }} unit{{ product.stock_quantity|pluralize }} remaining in stock.</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        
         <div class="bg-white rounded-lg shadow p-6 mb-6">
             <h2 class="text-xl font-semibold text-gray-900 mb-4">Product Information</h2>
             

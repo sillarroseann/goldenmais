@@ -53,6 +53,9 @@
             <div>
                 <!-- Product badges -->
                 <div class="flex flex-wrap gap-2 mb-4">
+                    {% if product.stock_quantity == 0 %}
+                        <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full font-semibold">Out of Stock</span>
+                    {% endif %}
                     {% if product.is_new %}
                         <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">New Harvest</span>
                     {% endif %}

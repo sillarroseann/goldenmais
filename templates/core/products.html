@@ -80,7 +80,9 @@
                         {% endif %}
                     </a>
                     
-                    {% if product.is_new %}
+                    {% if product.stock_quantity == 0 %}
+                        <span class="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full font-semibold">Out of Stock</span>
+                    {% elif product.is_new %}
                         <span class="absolute top-3 left-3 bg-green-600 text-white text-xs px-2 py-1 rounded-full">New Harvest</span>
                     {% elif product.is_bestseller %}
                         <span class="absolute top-3 left-3 bg-red-600 text-white text-xs px-2 py-1 rounded-full">Best Seller</span>
