@@ -1227,6 +1227,18 @@ def checkout(request):
             )
             return render(request, 'core/checkout.html', context)
 
+        # Require digital payment (GCash or PayMaya)
+        if payment_method not in ('gcash', 'maya'):
+            messages.error(request, 'Payment must be through GCash or PayMaya. Cash on Delivery is not available at this time.')
+            context = _checkout_context(
+                preselected_payment=payment_method,
+                selected_delivery_method=delivery_method,
+                phone_value=phone,
+                delivery_address_value=delivery_address,
+                notes_value=notes,
+            )
+            return render(request, 'core/checkout.html', context)
+
         if payment_method in ('gcash', 'maya'):
             # Redirect to GCash/PayMaya with phone number and order details
             order_items_text = '\n'.join([
@@ -1742,7 +1754,7 @@ def admin_ticket_detail(request, ticket_number):
 @staff_member_required
 def admin_feedback_dashboard(request):
     """Admin feedback dashboard"""
-    feedback_list = CustomerFeedback.objects.all()
+    feedback_list = CustomerFeedback.objects.all().order_by('-created_at')
     
     # Filter by type
     type_filter = request.GET.get('type')
