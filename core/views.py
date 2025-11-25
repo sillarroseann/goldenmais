@@ -615,8 +615,16 @@ def admin_register(request):
         form = AdminRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            messages.success(request, f'Staff user {user.username} created successfully! You can now login.')
-            return redirect('admin_login')
+            # Log the user in automatically
+            from django.contrib.auth import authenticate, login
+            user = authenticate(username=user.username, password=request.POST.get('password1'))
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'Welcome {user.first_name}! Your admin account has been created.')
+                return redirect('admin_dashboard')
+            else:
+                messages.success(request, f'Staff user {user.username} created successfully! Please login.')
+                return redirect('admin_login')
     else:
         form = AdminRegistrationForm()
     
