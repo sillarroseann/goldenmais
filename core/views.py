@@ -1800,3 +1800,89 @@ def admin_feedback_detail(request, feedback_id):
     }
     return render(request, 'admin/feedback_detail.html', context)
 
+
+# Category Management Views
+@admin_required
+def admin_categories(request):
+    """Admin categories management"""
+    categories = Category.objects.all().order_by('name')
+    
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'admin/categories.html', context)
+
+
+@admin_required
+def admin_category_add(request):
+    """Admin add new category"""
+    if request.method == 'POST':
+        from django.utils.text import slugify
+        
+        name = request.POST.get('name', '').strip()
+        description = request.POST.get('description', '').strip()
+        
+        if not name:
+            messages.error(request, 'Category name is required.')
+            return render(request, 'admin/category_form.html')
+        
+        slug = slugify(name)
+        
+        # Ensure unique slug
+        original_slug = slug
+        counter = 1
+        while Category.objects.filter(slug=slug).exists():
+            slug = f"{original_slug}-{counter}"
+            counter += 1
+        
+        category = Category.objects.create(
+            name=name,
+            slug=slug,
+            description=description,
+        )
+        
+        messages.success(request, f'Category "{category.name}" created successfully!')
+        return redirect('admin_categories')
+    
+    return render(request, 'admin/category_form.html')
+
+
+@admin_required
+def admin_category_edit(request, category_id):
+    """Admin edit category"""
+    category = get_object_or_404(Category, id=category_id)
+    
+    if request.method == 'POST':
+        category.name = request.POST.get('name', '').strip()
+        category.description = request.POST.get('description', '').strip()
+        
+        if not category.name:
+            messages.error(request, 'Category name is required.')
+            return render(request, 'admin/category_form.html', {'category': category})
+        
+        category.save()
+        messages.success(request, f'Category "{category.name}" updated successfully!')
+        return redirect('admin_categories')
+    
+    context = {
+        'category': category,
+    }
+    return render(request, 'admin/category_form.html', context)
+
+
+@admin_required
+def admin_category_delete(request, category_id):
+    """Admin delete category"""
+    category = get_object_or_404(Category, id=category_id)
+    
+    if request.method == 'POST':
+        category_name = category.name
+        category.delete()
+        messages.success(request, f'Category "{category_name}" deleted successfully!')
+        return redirect('admin_categories')
+    
+    context = {
+        'category': category,
+    }
+    return render(request, 'admin/category_confirm_delete.html', context)
+
