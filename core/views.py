@@ -640,19 +640,20 @@ def admin_dashboard(request):
         logout(request)
         return redirect('login')
     
-    # Get statistics
+    # Get statistics (exclude staff/admin users from customer counts)
     total_products = Product.objects.count()
-    total_customers = Customer.objects.count()
+    total_customers = Customer.objects.filter(user__is_staff=False).count()
     total_orders = Order.objects.count()
     total_reviews = Review.objects.count()
     
-    # Recent activity
+    # Recent activity (exclude staff/admin users)
     recent_orders = Order.objects.order_by('-created_at')[:5]
-    recent_customers = Customer.objects.order_by('-created_at')[:5]
+    recent_customers = Customer.objects.filter(user__is_staff=False).order_by('-created_at')[:5]
     recent_reviews = Review.objects.order_by('-created_at')[:5]
     recent_feedback = (
         CustomerFeedback.objects
         .select_related('customer__user')
+        .filter(customer__user__is_staff=False)
         .order_by('-created_at')[:3]
     )
     pending_contacts = (
@@ -662,10 +663,10 @@ def admin_dashboard(request):
         .count()
     )
     
-    # Monthly statistics
+    # Monthly statistics (exclude staff/admin users)
     current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     monthly_orders = Order.objects.filter(created_at__gte=current_month).count()
-    monthly_customers = Customer.objects.filter(created_at__gte=current_month).count()
+    monthly_customers = Customer.objects.filter(user__is_staff=False, created_at__gte=current_month).count()
     
     # Low stock products
     low_stock_products = Product.objects.filter(stock_quantity__lt=10)
@@ -887,7 +888,8 @@ def admin_order_details(request, order_id):
 @admin_required
 def admin_customers(request):
     """Admin customers management"""
-    customers = Customer.objects.all().order_by('-created_at')
+    # Exclude staff/admin users from customer list
+    customers = Customer.objects.filter(user__is_staff=False).order_by('-created_at')
     
     # Search functionality
     raw_search_query = (request.GET.get('search') or '').strip()
@@ -905,10 +907,10 @@ def admin_customers(request):
     page_number = request.GET.get('page')
     customers = paginator.get_page(page_number)
     
-    # Metrics for floating cards
-    total_customers_count = Customer.objects.count()
+    # Metrics for floating cards (exclude staff/admin users)
+    total_customers_count = Customer.objects.filter(user__is_staff=False).count()
     current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    monthly_new_customers = Customer.objects.filter(created_at__gte=current_month).count()
+    monthly_new_customers = Customer.objects.filter(user__is_staff=False, created_at__gte=current_month).count()
     total_orders_overall = Order.objects.count()
     average_orders_per_customer = 0
     if total_customers_count > 0:
