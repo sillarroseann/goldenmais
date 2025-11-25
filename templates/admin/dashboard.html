@@ -19,7 +19,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Products</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"10" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_products }}</p>
             </div>
         </div>
     </a>
@@ -32,7 +32,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Orders</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_orders|default:"16" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_orders }}</p>
             </div>
         </div>
     </a>
@@ -45,7 +45,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Customers</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_customers|default:"8" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_customers }}</p>
             </div>
         </div>
     </a>
@@ -58,7 +58,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Pending Messages</p>
-                <p class="text-2xl font-bold text-gray-900">{{ pending_contacts|default:"0" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ pending_contacts }}</p>
             </div>
         </div>
     </a>
@@ -72,15 +72,15 @@
         <div class="space-y-4">
             <div class="flex justify-between items-center">
                 <span class="text-gray-600">New Orders</span>
-                <span class="font-semibold text-gray-900">{{ monthly_orders|default:"0" }}</span>
+                <span class="font-semibold text-gray-900">{{ monthly_orders }}</span>
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-gray-600">New Customers</span>
-                <span class="font-semibold text-gray-900">{{ monthly_customers|default:"0" }}</span>
+                <span class="font-semibold text-gray-900">{{ monthly_customers }}</span>
             </div>
             <div class="flex justify-between items-center">
                 <span class="text-gray-600">Total Reviews</span>
-                <span class="font-semibold text-gray-900">{{ total_reviews|default:"3" }}</span>
+                <span class="font-semibold text-gray-900">{{ total_reviews }}</span>
             </div>
         </div>
     </div>
