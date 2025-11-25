@@ -119,7 +119,7 @@ def products(request):
 def product_detail(request, slug):
     """Individual product detail page"""
     product = get_object_or_404(Product, slug=slug)
-    reviews = product.reviews.all().order_by('-created_at')[:5]
+    reviews = product.reviews.all()[:5]
     related_products = Product.objects.filter(
         category=product.category
     ).exclude(id=product.id)[:4]
@@ -301,21 +301,6 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     customer, created = Customer.objects.get_or_create(user=request.user)
     
-    # Check if product is out of stock
-    if product.stock_quantity == 0:
-        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-        error_msg = f'{product.name} is currently out of stock.'
-        
-        if is_ajax:
-            return JsonResponse({
-                'success': False,
-                'error': error_msg,
-                'out_of_stock': True
-            })
-        else:
-            messages.error(request, error_msg)
-            return redirect('product_detail', slug=product.slug)
-    
     if request.method == 'POST':
         form = AddToCartForm(request.POST)
         if form.is_valid():
@@ -408,20 +393,10 @@ def buy_now(request, product_id):
     product = get_object_or_404(Product, id=product_id)
     customer, created = Customer.objects.get_or_create(user=request.user)
     
-    # Check if product is out of stock
-    if product.stock_quantity == 0:
-        messages.error(request, f'{product.name} is currently out of stock.')
-        return redirect('product_detail', slug=product.slug)
-    
     if request.method == 'POST':
         form = AddToCartForm(request.POST)
         if form.is_valid():
             quantity = form.cleaned_data['quantity']
-            
-            # Validate stock availability
-            if quantity > product.stock_quantity:
-                messages.error(request, f'Only {product.stock_quantity} in stock for {product.name}.')
-                return redirect('product_detail', slug=product.slug)
             
             # Create a temporary cart item for direct checkout
             temp_cart_item = {
@@ -615,16 +590,10 @@ def admin_register(request):
         form = AdminRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            # Log the user in automatically
-            from django.contrib.auth import authenticate, login
-            user = authenticate(username=user.username, password=request.POST.get('password1'))
-            if user is not None:
-                login(request, user)
-                messages.success(request, f'Welcome {user.first_name}! Your admin account has been created.')
-                return redirect('admin_dashboard')
-            else:
-                messages.success(request, f'Staff user {user.username} created successfully! Please login.')
-                return redirect('admin_login')
+            # DO NOT create customer profile for admin users
+            # Admin and customer accounts must remain completely separate
+            messages.success(request, f'Staff user {user.username} created successfully! You can now login.')
+            return redirect('admin_login')
     else:
         form = AdminRegistrationForm()
     
@@ -635,25 +604,19 @@ def admin_register(request):
 @admin_required
 def admin_dashboard(request):
     """Admin dashboard with statistics"""
-    # Double-check that user is staff (security measure)
-    if not request.user.is_staff:
-        logout(request)
-        return redirect('login')
-    
-    # Get statistics (exclude staff/admin users from customer counts)
+    # Get statistics
     total_products = Product.objects.count()
-    total_customers = Customer.objects.filter(user__is_staff=False).count()
+    total_customers = Customer.objects.count()
     total_orders = Order.objects.count()
     total_reviews = Review.objects.count()
     
-    # Recent activity (exclude staff/admin users)
+    # Recent activity
     recent_orders = Order.objects.order_by('-created_at')[:5]
-    recent_customers = Customer.objects.filter(user__is_staff=False).order_by('-created_at')[:5]
+    recent_customers = Customer.objects.order_by('-created_at')[:5]
     recent_reviews = Review.objects.order_by('-created_at')[:5]
     recent_feedback = (
         CustomerFeedback.objects
         .select_related('customer__user')
-        .filter(customer__user__is_staff=False)
         .order_by('-created_at')[:3]
     )
     pending_contacts = (
@@ -663,10 +626,10 @@ def admin_dashboard(request):
         .count()
     )
     
-    # Monthly statistics (exclude staff/admin users)
+    # Monthly statistics
     current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
     monthly_orders = Order.objects.filter(created_at__gte=current_month).count()
-    monthly_customers = Customer.objects.filter(user__is_staff=False, created_at__gte=current_month).count()
+    monthly_customers = Customer.objects.filter(created_at__gte=current_month).count()
     
     # Low stock products
     low_stock_products = Product.objects.filter(stock_quantity__lt=10)
@@ -888,8 +851,7 @@ def admin_order_details(request, order_id):
 @admin_required
 def admin_customers(request):
     """Admin customers management"""
-    # Exclude staff/admin users from customer list
-    customers = Customer.objects.filter(user__is_staff=False).order_by('-created_at')
+    customers = Customer.objects.all().order_by('-created_at')
     
     # Search functionality
     raw_search_query = (request.GET.get('search') or '').strip()
@@ -907,10 +869,10 @@ def admin_customers(request):
     page_number = request.GET.get('page')
     customers = paginator.get_page(page_number)
     
-    # Metrics for floating cards (exclude staff/admin users)
-    total_customers_count = Customer.objects.filter(user__is_staff=False).count()
+    # Metrics for floating cards
+    total_customers_count = Customer.objects.count()
     current_month = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    monthly_new_customers = Customer.objects.filter(user__is_staff=False, created_at__gte=current_month).count()
+    monthly_new_customers = Customer.objects.filter(created_at__gte=current_month).count()
     total_orders_overall = Order.objects.count()
     average_orders_per_customer = 0
     if total_customers_count > 0:
@@ -1100,8 +1062,8 @@ def admin_add_staff(request):
                     is_active=True
                 )
                 
-                # Create customer profile for the staff user
-                Customer.objects.create(user=user)
+                # DO NOT create customer profile for staff users
+                # Staff users should be completely separate from customers
                 
                 messages.success(request, f'Staff member "{user.get_full_name() or user.username}" created successfully!')
                 return redirect('admin_add_staff')
@@ -1777,7 +1739,7 @@ def admin_ticket_detail(request, ticket_number):
 @staff_member_required
 def admin_feedback_dashboard(request):
     """Admin feedback dashboard"""
-    feedback_list = CustomerFeedback.objects.all().order_by('-created_at')
+    feedback_list = CustomerFeedback.objects.all()
     
     # Filter by type
     type_filter = request.GET.get('type')

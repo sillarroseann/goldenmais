@@ -1,7 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import logout
-from django.shortcuts import redirect
-from django.core.exceptions import PermissionDenied
 
 
 class AdminSessionSeparationMiddleware:
@@ -16,39 +14,16 @@ class AdminSessionSeparationMiddleware:
         self.get_response = get_response
         self.static_prefix = getattr(settings, 'STATIC_URL', '/static/') or '/static/'
         self.media_prefix = getattr(settings, 'MEDIA_URL', '/media/') or '/media/'
-        # Admin routes that require staff permission
-        self.admin_routes = [
-            '/admin-dashboard/',
-            '/admin-products/',
-            '/admin-product-add/',
-            '/admin-product-edit/',
-            '/admin-product-view/',
-            '/admin-product-quick-stock/',
-            '/admin-orders/',
-            '/admin-order-details/',
-            '/admin-order-cancel/',
-            '/admin-customers/',
-            '/admin-customer-edit/',
-            '/admin-customer-view/',
-            '/admin-contacts/',
-            '/admin-contact-view/',
-            '/admin-support/',
-            '/admin-feedback/',
-            '/admin-add-staff/',
-            '/update-order-status/',
-            '/mark-contact-read/',
-        ]
 
     def __call__(self, request):
         # Check if user is trying to access admin routes without being staff
-        if self._should_block(request):
+        if self._should_logout(request):
             logout(request)
-            return redirect('login')
         response = self.get_response(request)
         return response
 
-    def _should_block(self, request):
-        """Block users trying to access routes they shouldn't"""
+    def _should_logout(self, request):
+        """Logout users trying to access routes they shouldn't"""
         if not request.user.is_authenticated:
             return False
         
@@ -64,11 +39,8 @@ class AdminSessionSeparationMiddleware:
         if path in ['/login/', '/logout/', '/register/', '/admin-login/', '/admin-register/']:
             return False
         
-        # If user is NOT staff and tries to access admin routes, block them
-        if not request.user.is_staff:
-            # Check if path starts with any admin route
-            for admin_route in self.admin_routes:
-                if path.startswith(admin_route):
-                    return True
+        # If user is NOT staff and tries to access admin routes, logout
+        if path.startswith('/admin') and not request.user.is_staff:
+            return True
         
         return False

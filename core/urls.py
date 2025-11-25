@@ -3,32 +3,6 @@ from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
-    # Admin Dashboard - MUST BE BEFORE product detail route to avoid slug conflicts
-    path('admin/', views.admin_redirect, name='admin_redirect'),  # Redirect /admin/ to custom admin
-    path('admin-login/', views.admin_login, name='admin_login'),
-    path('admin-register/', views.admin_register, name='admin_register'),
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
-    path('admin-products/', views.admin_products, name='admin_products'),
-    path('admin-product-add/', views.admin_product_add, name='admin_product_add'),
-    path('admin-product-edit/<int:product_id>/', views.admin_product_edit, name='admin_product_edit'),
-    path('admin-product-view/<int:product_id>/', views.admin_product_view, name='admin_product_view'),
-    path('admin-product-quick-stock/', views.admin_quick_stock_update, name='admin_quick_stock_update'),
-    path('admin-orders/', views.admin_orders, name='admin_orders'),
-    path('admin-order-details/<int:order_id>/', views.admin_order_details, name='admin_order_details'),
-    path('admin-order-cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
-    path('admin-customers/', views.admin_customers, name='admin_customers'),
-    path('admin-customer-edit/<int:customer_id>/', views.admin_customer_edit, name='admin_customer_edit'),
-    path('admin-customer-view/<int:customer_id>/', views.admin_customer_view, name='admin_customer_view'),
-    path('admin-contacts/', views.admin_contacts, name='admin_contacts'),
-    path('admin-contact-view/<int:contact_id>/', views.admin_contact_view, name='admin_contact_view'),
-    path('admin-support/', views.admin_support_dashboard, name='admin_support_dashboard'),
-    path('admin-support/ticket/<str:ticket_number>/', views.admin_ticket_detail, name='admin_ticket_detail'),
-    path('admin-feedback/', views.admin_feedback_dashboard, name='admin_feedback_dashboard'),
-    path('admin-feedback/<int:feedback_id>/', views.admin_feedback_detail, name='admin_feedback_detail'),
-    path('admin-add-staff/', views.admin_add_staff, name='admin_add_staff'),
-    path('mark-contact-read/<int:contact_id>/', views.mark_contact_read, name='mark_contact_read'),
-    path('update-order-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
-    
     # Main pages
     path('', views.home, name='home'),
     path('about/', views.about, name='about'),
@@ -67,4 +41,30 @@ urlpatterns = [
     path('support/create/', views.create_support_ticket, name='create_support_ticket'),
     path('support/ticket/<str:ticket_number>/', views.support_ticket_detail, name='support_ticket_detail'),
     path('feedback/', views.customer_feedback, name='customer_feedback'),
+    
+    # Admin Dashboard
+    path('admin/', views.admin_redirect, name='admin_redirect'),  # Redirect /admin/ to custom admin
+    path('admin-login/', views.admin_login, name='admin_login'),
+    path('admin-register/', views.admin_register, name='admin_register'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-products/', views.admin_products, name='admin_products'),
+    path('admin-product-add/', views.admin_product_add, name='admin_product_add'),
+    path('admin-product-edit/<int:product_id>/', views.admin_product_edit, name='admin_product_edit'),
+    path('admin-product-view/<int:product_id>/', views.admin_product_view, name='admin_product_view'),
+    path('admin-product-quick-stock/', views.admin_quick_stock_update, name='admin_quick_stock_update'),
+    path('admin-orders/', views.admin_orders, name='admin_orders'),
+    path('admin-order-details/<int:order_id>/', views.admin_order_details, name='admin_order_details'),
+    path('admin-order-cancel/<int:order_id>/', views.cancel_order, name='cancel_order'),
+    path('admin-customers/', views.admin_customers, name='admin_customers'),
+    path('admin-customer-edit/<int:customer_id>/', views.admin_customer_edit, name='admin_customer_edit'),
+    path('admin-customer-view/<int:customer_id>/', views.admin_customer_view, name='admin_customer_view'),
+    path('admin-contacts/', views.admin_contacts, name='admin_contacts'),
+    path('admin-contact-view/<int:contact_id>/', views.admin_contact_view, name='admin_contact_view'),
+    path('admin-support/', views.admin_support_dashboard, name='admin_support_dashboard'),
+    path('admin-support/ticket/<str:ticket_number>/', views.admin_ticket_detail, name='admin_ticket_detail'),
+    path('admin-feedback/', views.admin_feedback_dashboard, name='admin_feedback_dashboard'),
+    path('admin-feedback/<int:feedback_id>/', views.admin_feedback_detail, name='admin_feedback_detail'),
+    path('admin-add-staff/', views.admin_add_staff, name='admin_add_staff'),
+    path('mark-contact-read/<int:contact_id>/', views.mark_contact_read, name='mark_contact_read'),
+    path('update-order-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
 ]

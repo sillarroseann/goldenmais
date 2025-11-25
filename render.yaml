@@ -8,7 +8,6 @@ services:
       python manage.py collectstatic --noinput
     startCommand: |
       python manage.py migrate --noinput
-      python manage.py setup_accounts
       gunicorn golden_mais.wsgi:application
     envVars:
       - key: PYTHON_VERSION

@@ -10,7 +10,7 @@
 </div>
 
 <!-- Statistics Cards -->
-<div class="floating-section rounded-2xl p-4 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+<div class="floating-section rounded-2xl p-4 mb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
     <!-- Total Products -->
     <a href="{% url 'admin_products' %}" class="block bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-500">
         <div class="flex items-center">
@@ -19,7 +19,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Products</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"0" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_products|default:"10" }}</p>
             </div>
         </div>
     </a>
@@ -32,7 +32,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Orders</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_orders|default:"0" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_orders|default:"16" }}</p>
             </div>
         </div>
     </a>
@@ -45,20 +45,7 @@
             </div>
             <div class="ml-4">
                 <p class="text-sm font-medium text-gray-600">Total Customers</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_customers|default:"0" }}</p>
-            </div>
-        </div>
-    </a>
-
-    <!-- Total Reviews -->
-    <a href="{% url 'admin_feedback_dashboard' %}" class="block bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow focus:outline-none focus:ring-2 focus:ring-yellow-500">
-        <div class="flex items-center">
-            <div class="p-3 rounded-full bg-purple-100">
-                <i class="fas fa-star text-purple-600 text-xl"></i>
-            </div>
-            <div class="ml-4">
-                <p class="text-sm font-medium text-gray-600">Total Reviews</p>
-                <p class="text-2xl font-bold text-gray-900">{{ total_reviews|default:"0" }}</p>
+                <p class="text-2xl font-bold text-gray-900">{{ total_customers|default:"8" }}</p>
             </div>
         </div>
     </a>
@@ -92,12 +79,8 @@
                 <span class="font-semibold text-gray-900">{{ monthly_customers|default:"0" }}</span>
             </div>
             <div class="flex justify-between items-center">
-                <span class="text-gray-600">Total Customers</span>
-                <span class="font-semibold text-gray-900">{{ total_customers|default:"0" }}</span>
-            </div>
-            <div class="flex justify-between items-center">
                 <span class="text-gray-600">Total Reviews</span>
-                <span class="font-semibold text-gray-900">{{ total_reviews|default:"0" }}</span>
+                <span class="font-semibold text-gray-900">{{ total_reviews|default:"3" }}</span>
             </div>
         </div>
     </div>
