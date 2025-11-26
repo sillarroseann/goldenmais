@@ -1250,7 +1250,7 @@ def checkout(request):
             total = subtotal + delivery_fee
             
             message = f"Golden Mais Order:\n{order_items_text}\nDelivery: ₱{delivery_fee}\nTotal: ₱{total}"
-            phone_number = "09631186511"
+            phone_number = "09783645239"
             
             # For GCash/PayMaya, redirect to messaging app with order details
             import urllib.parse
