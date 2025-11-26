@@ -75,14 +75,20 @@
                             <!-- Quantity Controls -->
                             <div class="flex items-center space-x-3">
                                 <div class="flex items-center space-x-2">
-                                    <input type="number" 
-                                           id="qty-{{ item.id }}" 
-                                           class="quantity-input w-16 px-2 py-1 border border-gray-300 rounded-lg text-center font-medium focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                                           value="{{ item.quantity }}" 
-                                           min="1" 
-                                           max="{{ item.product.stock_quantity }}"
-                                           data-item-id="{{ item.id }}"
-                                           onchange="updateQuantityFromInput({{ item.id }}, this.value)">
+                                    <button onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'-1' }})" 
+                                            class="quantity-btn w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                            {% if item.quantity <= 1 %}disabled{% endif %}
+                                            data-item-id="{{ item.id }}">
+                                        <i class="fas fa-minus text-xs"></i>
+                                    </button>
+                                    
+                                    <span class="quantity-display w-12 text-center font-medium" data-item-id="{{ item.id }}">{{ item.quantity }}</span>
+                                    
+                                    <button onclick="updateQuantity({{ item.id }}, {{ item.quantity|add:'1' }})" 
+                                            class="quantity-btn w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center"
+                                            data-item-id="{{ item.id }}">
+                                        <i class="fas fa-plus text-xs"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -269,19 +275,18 @@
         checkoutBtn.classList.add('bg-green-600', 'hover:bg-green-700');
     }
     
-    // AJAX function to update cart item quantity from input field
-    function updateQuantityFromInput(itemId, newQuantity) {
-        newQuantity = parseInt(newQuantity);
-        if (newQuantity < 1) {
-            alert('Quantity must be at least 1');
-            location.reload();
-            return;
-        }
+    // AJAX function to update cart item quantity
+    function updateQuantity(itemId, newQuantity) {
+        if (newQuantity < 1) return;
         
         // Show loading state
-        const quantityInput = document.querySelector(`#qty-${itemId}`);
-        const originalQuantity = quantityInput.value;
-        quantityInput.disabled = true;
+        const quantityDisplay = document.querySelector(`[data-item-id="${itemId}"].quantity-display`);
+        const originalQuantity = quantityDisplay.textContent;
+        quantityDisplay.textContent = '...';
+        
+        // Disable buttons temporarily
+        const buttons = document.querySelectorAll(`[data-item-id="${itemId}"].quantity-btn`);
+        buttons.forEach(btn => btn.disabled = true);
         
         // Get CSRF token
         const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -298,8 +303,8 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Update quantity input
-                quantityInput.value = data.new_quantity;
+                // Update quantity display
+                quantityDisplay.textContent = data.new_quantity;
                 
                 // Update item total
                 const itemTotal = document.querySelector(`[data-item-id="${itemId}"].item-total`);
@@ -315,21 +320,43 @@
                     checkbox.dataset.price = data.item_total.toFixed(2);
                 }
                 
-                // Update selected totals
-                updateSelectedTotal();
+                // Update minus button state
+                const minusBtn = buttons[0];
+                minusBtn.disabled = data.new_quantity <= 1;
+                
+                // Update plus button state based on max quantity
+                const plusBtn = buttons[1];
+                if (data.max_quantity) {
+                    plusBtn.disabled = data.new_quantity >= data.max_quantity;
+                }
             } else {
                 // Restore original quantity on error
-                quantityInput.value = originalQuantity;
+                quantityDisplay.textContent = originalQuantity;
                 alert(data.error || 'Error updating cart. Please try again.');
+                
+                // Re-enable buttons
+                buttons.forEach(btn => btn.disabled = false);
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            quantityInput.value = originalQuantity;
+            quantityDisplay.textContent = originalQuantity;
             alert('Error updating cart. Please try again.');
+            
+            // Re-enable buttons
+            buttons.forEach(btn => btn.disabled = false);
         })
         .finally(() => {
-            quantityInput.disabled = false;
+            // Re-enable buttons if not already done
+            buttons.forEach(btn => {
+                if (btn === buttons[0] && newQuantity <= 1) {
+                    btn.disabled = true;
+                } else if (btn === buttons[1]) {
+                    // Plus button will be handled in success block
+                } else {
+                    btn.disabled = false;
+                }
+            });
         });
     }
     
