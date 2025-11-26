@@ -1,12 +1,12 @@
 # Generated migration to create and preserve default admin and customer accounts
 
 from django.db import migrations
-from django.contrib.auth.models import User
-from core.models import Customer
 
 
 def create_default_accounts(apps, schema_editor):
     """Create default admin and customer accounts if they don't exist"""
+    User = apps.get_model('auth', 'User')
+    Customer = apps.get_model('core', 'Customer')
     
     # Create admin user if it doesn't exist
     admin_user, created = User.objects.get_or_create(
