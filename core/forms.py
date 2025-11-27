@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Contact, Customer, Review
+from .models import Contact, Customer, Review, Advertisement
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -132,3 +132,67 @@ class AdminRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+
+
+class AdvertisementForm(forms.ModelForm):
+    class Meta:
+        model = Advertisement
+        fields = ['title', 'description', 'ad_type', 'video_file', 'video_url', 'image', 
+                  'status', 'display_order', 'start_date', 'end_date']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'placeholder': 'Advertisement Title'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'placeholder': 'Description (optional)',
+                'rows': 3
+            }),
+            'ad_type': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none'
+            }),
+            'video_file': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'accept': 'video/mp4,video/webm,video/ogg'
+            }),
+            'video_url': forms.URLInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'placeholder': 'YouTube or Vimeo URL (optional)'
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'accept': 'image/*'
+            }),
+            'status': forms.Select(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none'
+            }),
+            'display_order': forms.NumberInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'min': '0'
+            }),
+            'start_date': forms.DateTimeInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'type': 'datetime-local'
+            }),
+            'end_date': forms.DateTimeInput(attrs={
+                'class': 'w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none',
+                'type': 'datetime-local'
+            }),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        ad_type = cleaned_data.get('ad_type')
+        video_file = cleaned_data.get('video_file')
+        video_url = cleaned_data.get('video_url')
+        image = cleaned_data.get('image')
+        
+        if ad_type == 'video':
+            if not video_file and not video_url:
+                raise forms.ValidationError('For video advertisements, please provide either a video file or a video URL.')
+        elif ad_type == 'banner':
+            if not image:
+                raise forms.ValidationError('For banner advertisements, please upload an image.')
+        
+        return cleaned_data

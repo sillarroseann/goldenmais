@@ -1,0 +1,196 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">{{ title }}</h1>
+        <p class="text-gray-600 mt-2">Create or edit an advertisement</p>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Form -->
+    <form method="post" enctype="multipart/form-data" class="bg-white rounded-lg shadow-md p-8">
+        {% csrf_token %}
+
+        <!-- Title -->
+        <div class="mb-6">
+            <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Title <span class="text-red-500">*</span>
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.title.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Description -->
+        <div class="mb-6">
+            <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Description
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.description.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Advertisement Type -->
+        <div class="mb-6">
+            <label for="{{ form.ad_type.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Advertisement Type <span class="text-red-500">*</span>
+            </label>
+            {{ form.ad_type }}
+            {% if form.ad_type.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.ad_type.errors.0 }}</div>
+            {% endif %}
+            <p class="text-gray-500 text-sm mt-2">Select whether this is a video advertisement or a banner/poster</p>
+        </div>
+
+        <!-- Video File (conditional) -->
+        <div class="mb-6" id="video-file-section" style="display: none;">
+            <label for="{{ form.video_file.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Video File
+            </label>
+            {{ form.video_file }}
+            {% if form.video_file.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.video_file.errors.0 }}</div>
+            {% endif %}
+            <p class="text-gray-500 text-sm mt-2">Upload MP4, WebM, or OGV video files (max 500MB)</p>
+        </div>
+
+        <!-- Video URL (conditional) -->
+        <div class="mb-6" id="video-url-section" style="display: none;">
+            <label for="{{ form.video_url.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Video URL
+            </label>
+            {{ form.video_url }}
+            {% if form.video_url.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.video_url.errors.0 }}</div>
+            {% endif %}
+            <p class="text-gray-500 text-sm mt-2">Or provide a YouTube/Vimeo URL instead of uploading a file</p>
+        </div>
+
+        <!-- Image (conditional) -->
+        <div class="mb-6" id="image-section" style="display: none;">
+            <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Banner Image <span class="text-red-500">*</span>
+            </label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.image.errors.0 }}</div>
+            {% endif %}
+            <p class="text-gray-500 text-sm mt-2">Upload a high-quality image for the banner (recommended: 1200x400px)</p>
+            {% if advertisement.image %}
+                <div class="mt-4">
+                    <p class="text-sm font-medium text-gray-700 mb-2">Current Image:</p>
+                    <img src="{{ advertisement.image.url }}" alt="{{ advertisement.title }}" class="max-w-xs rounded-lg border border-gray-300">
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Status -->
+        <div class="mb-6">
+            <label for="{{ form.status.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Status
+            </label>
+            {{ form.status }}
+            {% if form.status.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.status.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Display Order -->
+        <div class="mb-6">
+            <label for="{{ form.display_order.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Display Order
+            </label>
+            {{ form.display_order }}
+            {% if form.display_order.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.display_order.errors.0 }}</div>
+            {% endif %}
+            <p class="text-gray-500 text-sm mt-2">Lower numbers are displayed first</p>
+        </div>
+
+        <!-- Start Date -->
+        <div class="mb-6">
+            <label for="{{ form.start_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                Start Date (Optional)
+            </label>
+            {{ form.start_date }}
+            {% if form.start_date.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.start_date.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- End Date -->
+        <div class="mb-6">
+            <label for="{{ form.end_date.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-2">
+                End Date (Optional)
+            </label>
+            {{ form.end_date }}
+            {% if form.end_date.errors %}
+                <div class="text-red-500 text-sm mt-1">{{ form.end_date.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <!-- Form Errors -->
+        {% if form.non_field_errors %}
+            <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Buttons -->
+        <div class="flex gap-4">
+            <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                {% if advertisement %}Update Advertisement{% else %}Create Advertisement{% endif %}
+            </button>
+            <a href="{% url 'admin_advertisements' %}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Show/hide fields based on advertisement type
+    const adTypeSelect = document.querySelector('[name="ad_type"]');
+    const videoFileSection = document.getElementById('video-file-section');
+    const videoUrlSection = document.getElementById('video-url-section');
+    const imageSection = document.getElementById('image-section');
+
+    function updateFieldsVisibility() {
+        const selectedType = adTypeSelect.value;
+        
+        if (selectedType === 'video') {
+            videoFileSection.style.display = 'block';
+            videoUrlSection.style.display = 'block';
+            imageSection.style.display = 'none';
+        } else if (selectedType === 'banner') {
+            videoFileSection.style.display = 'none';
+            videoUrlSection.style.display = 'none';
+            imageSection.style.display = 'block';
+        } else {
+            videoFileSection.style.display = 'none';
+            videoUrlSection.style.display = 'none';
+            imageSection.style.display = 'none';
+        }
+    }
+
+    adTypeSelect.addEventListener('change', updateFieldsVisibility);
+    
+    // Initial call to set correct visibility
+    updateFieldsVisibility();
+</script>
+{% endblock %}

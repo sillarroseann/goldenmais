@@ -13,10 +13,10 @@ from django.utils import timezone
 from django.utils import timezone
 from decimal import Decimal
 import json
-from .models import Product, Customer, Cart, CartItem, Order, OrderItem, Contact, ContactReply, Review, OrderTracking, Category, CustomerSupport, SupportMessage, CustomerFeedback
+from .models import Product, Customer, Cart, CartItem, Order, OrderItem, Contact, ContactReply, Review, OrderTracking, Category, CustomerSupport, SupportMessage, CustomerFeedback, Advertisement
 # Payment imports - will be enabled after migration
 # from .payment_service import get_payment_service
-from .forms import ContactForm, CustomUserCreationForm, AddToCartForm, ReviewForm, AdminRegistrationForm
+from .forms import ContactForm, CustomUserCreationForm, AddToCartForm, ReviewForm, AdminRegistrationForm, AdvertisementForm
 from .decorators import admin_required
 import random
 import string
@@ -34,10 +34,23 @@ def home(request):
     combo_deals = Product.objects.filter(product_type='bundles')[:3]
     seasonal_items = Product.objects.filter(product_type='fresh-corn')[:3]
     
+    # Get active advertisements
+    from django.utils import timezone
+    now = timezone.now()
+    active_ads = Advertisement.objects.filter(
+        status='active',
+        ad_type='banner'
+    ).filter(
+        Q(start_date__isnull=True) | Q(start_date__lte=now)
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=now)
+    ).order_by('display_order')[:5]
+    
     context = {
         'featured_products': featured_products,
         'combo_deals': combo_deals,
         'seasonal_items': seasonal_items,
+        'advertisements': active_ads,
     }
     return render(request, 'core/home.html', context)
 
@@ -1885,4 +1898,206 @@ def admin_category_delete(request, category_id):
         'category': category,
     }
     return render(request, 'admin/category_confirm_delete.html', context)
+
+
+# ============================================================================
+# ADVERTISEMENT MANAGEMENT VIEWS
+# ============================================================================
+
+@admin_required
+def admin_advertisements(request):
+    """Admin view all advertisements"""
+    advertisements = Advertisement.objects.all().order_by('display_order', '-created_at')
+    
+    # Filtering
+    ad_type_filter = request.GET.get('type')
+    status_filter = request.GET.get('status')
+    
+    if ad_type_filter:
+        advertisements = advertisements.filter(ad_type=ad_type_filter)
+    
+    if status_filter:
+        advertisements = advertisements.filter(status=status_filter)
+    
+    # Pagination
+    paginator = Paginator(advertisements, 10)
+    page_number = request.GET.get('page')
+    ads_page = paginator.get_page(page_number)
+    
+    context = {
+        'advertisements': ads_page,
+        'ad_types': Advertisement.ADVERTISEMENT_TYPES,
+        'statuses': Advertisement.STATUS_CHOICES,
+        'current_type_filter': ad_type_filter,
+        'current_status_filter': status_filter,
+    }
+    return render(request, 'admin/advertisements.html', context)
+
+
+@admin_required
+def admin_advertisement_add(request):
+    """Admin add new advertisement"""
+    if request.method == 'POST':
+        form = AdvertisementForm(request.POST, request.FILES)
+        if form.is_valid():
+            advertisement = form.save(commit=False)
+            advertisement.created_by = request.user
+            advertisement.save()
+            messages.success(request, f'Advertisement "{advertisement.title}" created successfully!')
+            return redirect('admin_advertisements')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = AdvertisementForm()
+    
+    context = {
+        'form': form,
+        'title': 'Add Advertisement',
+    }
+    return render(request, 'admin/advertisement_form.html', context)
+
+
+@admin_required
+def admin_advertisement_edit(request, ad_id):
+    """Admin edit advertisement"""
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
+    
+    if request.method == 'POST':
+        form = AdvertisementForm(request.POST, request.FILES, instance=advertisement)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Advertisement "{advertisement.title}" updated successfully!')
+            return redirect('admin_advertisements')
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
+    else:
+        form = AdvertisementForm(instance=advertisement)
+    
+    context = {
+        'form': form,
+        'advertisement': advertisement,
+        'title': 'Edit Advertisement',
+    }
+    return render(request, 'admin/advertisement_form.html', context)
+
+
+@admin_required
+def admin_advertisement_view(request, ad_id):
+    """Admin view advertisement details"""
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
+    
+    context = {
+        'advertisement': advertisement,
+    }
+    return render(request, 'admin/advertisement_view.html', context)
+
+
+@admin_required
+def admin_advertisement_delete(request, ad_id):
+    """Admin delete advertisement"""
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
+    
+    if request.method == 'POST':
+        ad_title = advertisement.title
+        advertisement.delete()
+        messages.success(request, f'Advertisement "{ad_title}" deleted successfully!')
+        return redirect('admin_advertisements')
+    
+    context = {
+        'advertisement': advertisement,
+    }
+    return render(request, 'admin/advertisement_confirm_delete.html', context)
+
+
+@admin_required
+def admin_advertisement_toggle_status(request, ad_id):
+    """Admin toggle advertisement status"""
+    advertisement = get_object_or_404(Advertisement, id=ad_id)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Advertisement.STATUS_CHOICES):
+            advertisement.status = new_status
+            advertisement.save()
+            messages.success(request, f'Advertisement status changed to "{advertisement.get_status_display()}"!')
+        else:
+            messages.error(request, 'Invalid status.')
+    
+    return redirect('admin_advertisements')
+
+
+# ============================================================================
+# PUBLIC ADVERTISEMENT VIEWS (FOR DISPLAYING ADS TO CUSTOMERS)
+# ============================================================================
+
+def get_active_advertisements(ad_type=None):
+    """Get currently active advertisements"""
+    from django.utils import timezone
+    now = timezone.now()
+    
+    ads = Advertisement.objects.filter(
+        status='active'
+    ).filter(
+        Q(start_date__isnull=True) | Q(start_date__lte=now)
+    ).filter(
+        Q(end_date__isnull=True) | Q(end_date__gte=now)
+    ).order_by('display_order')
+    
+    if ad_type:
+        ads = ads.filter(ad_type=ad_type)
+    
+    return ads
+
+
+def advertisements_carousel(request):
+    """API endpoint to get banner advertisements for carousel"""
+    banners = get_active_advertisements(ad_type='banner')[:10]
+    
+    data = {
+        'advertisements': [
+            {
+                'id': ad.id,
+                'title': ad.title,
+                'image_url': ad.image.url if ad.image else None,
+                'description': ad.description,
+            }
+            for ad in banners
+        ]
+    }
+    return JsonResponse(data)
+
+
+def advertisements_videos(request):
+    """API endpoint to get video advertisements"""
+    videos = get_active_advertisements(ad_type='video')[:10]
+    
+    data = {
+        'advertisements': [
+            {
+                'id': ad.id,
+                'title': ad.title,
+                'video_url': ad.video_url,
+                'video_file': ad.video_file.url if ad.video_file else None,
+                'description': ad.description,
+            }
+            for ad in videos
+        ]
+    }
+    return JsonResponse(data)
+
+
+def advertisements_page(request):
+    """Display all active advertisements"""
+    video_ads = get_active_advertisements(ad_type='video')
+    banner_ads = get_active_advertisements(ad_type='banner')
+    
+    context = {
+        'video_ads': video_ads,
+        'banner_ads': banner_ads,
+    }
+    return render(request, 'core/advertisements.html', context)
 

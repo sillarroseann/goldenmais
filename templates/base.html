@@ -51,6 +51,7 @@
         <nav class="hidden md:flex space-x-6 items-center">
             <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">Home</a>
             <a href="{% url 'products' %}" class="{% if request.resolver_match.url_name == 'products' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">Products</a>
+            <a href="{% url 'advertisements_page' %}" class="{% if request.resolver_match.url_name == 'advertisements_page' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">🎯 Promotions</a>
             <a href="{% url 'contact' %}" class="{% if request.resolver_match.url_name == 'contact' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">Contact</a>
             <a href="{% url 'about' %}" class="{% if request.resolver_match.url_name == 'about' %}text-yellow-700 font-medium underline{% else %}text-gray-700 hover:text-yellow-700{% endif %}">About</a>
             
@@ -124,6 +125,7 @@
         <div class="px-6 py-4 space-y-2">
             <a href="{% url 'home' %}" class="block text-gray-700 hover:text-yellow-700">Home</a>
             <a href="{% url 'products' %}" class="block text-gray-700 hover:text-yellow-700">Products</a>
+            <a href="{% url 'advertisements_page' %}" class="block text-gray-700 hover:text-yellow-700">🎯 Promotions</a>
             <a href="{% url 'contact' %}" class="block text-gray-700 hover:text-yellow-700">Contact</a>
             <a href="{% url 'about' %}" class="block text-gray-700 hover:text-yellow-700">About</a>
             

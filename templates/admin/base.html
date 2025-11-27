@@ -227,6 +227,23 @@
                         {% endif %}
                     </div>
                 </a>
+
+                <div class="rounded-2xl border transition-all duration-200 {% if 'admin_advertisement' in request.resolver_match.url_name %}bg-gray-100 text-gray-900 border-transparent shadow-lg{% else %}bg-gray-800/60 text-gray-200 border-gray-800{% endif %} px-4 py-3">
+                    <div class="flex items-center justify-between">
+                        <a href="{% url 'admin_advertisements' %}" class="flex items-center gap-3 flex-1">
+                            <span class="flex h-8 w-8 items-center justify-center rounded-xl bg-white/10 {% if 'admin_advertisement' in request.resolver_match.url_name %}text-gray-900{% endif %}">
+                                <i class="fas fa-video"></i>
+                            </span>
+                            <div>
+                                <span class="font-semibold block">Advertisements</span>
+                                <span class="text-xs opacity-70">Videos & banners</span>
+                            </div>
+                        </a>
+                        <a href="{% url 'admin_advertisement_add' %}" class="ml-3 text-xs font-semibold px-2.5 py-1 rounded-full border border-white/30 hover:bg-white/10">
+                            + Add
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
 

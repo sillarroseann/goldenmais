@@ -1,0 +1,134 @@
+{% extends 'admin/base.html' %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Advertisements Management</h1>
+            <p class="text-gray-600 mt-2">Manage video advertisements and promotional banners</p>
+        </div>
+        <a href="{% url 'admin_advertisement_add' %}" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg transition">
+            + Add Advertisement
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="get" class="flex gap-4 flex-wrap">
+            <div class="flex-1 min-w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                <select name="type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                    <option value="">All Types</option>
+                    {% for value, label in ad_types %}
+                        <option value="{{ value }}" {% if current_type_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex-1 min-w-48">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                <select name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:outline-none">
+                    <option value="">All Statuses</option>
+                    {% for value, label in statuses %}
+                        <option value="{{ value }}" {% if current_status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="flex gap-2 items-end">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                    Filter
+                </button>
+                <a href="{% url 'admin_advertisements' %}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-6 rounded-lg transition">
+                    Reset
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 rounded-lg {% if message.tags %}bg-{{ message.tags }}-100 text-{{ message.tags }}-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Advertisements Table -->
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        {% if advertisements %}
+            <table class="w-full">
+                <thead class="bg-gray-100 border-b">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Title</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Type</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Views</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Created</th>
+                        <th class="px-6 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ad in advertisements %}
+                        <tr class="border-b hover:bg-gray-50 transition">
+                            <td class="px-6 py-4">
+                                <div class="font-medium text-gray-900">{{ ad.title }}</div>
+                                {% if ad.description %}
+                                    <div class="text-sm text-gray-500 truncate">{{ ad.description|truncatewords:10 }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-medium {% if ad.ad_type == 'video' %}bg-blue-100 text-blue-800{% else %}bg-purple-100 text-purple-800{% endif %}">
+                                    {{ ad.get_ad_type_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="inline-block px-3 py-1 rounded-full text-sm font-medium 
+                                    {% if ad.status == 'active' %}bg-green-100 text-green-800
+                                    {% elif ad.status == 'draft' %}bg-yellow-100 text-yellow-800
+                                    {% elif ad.status == 'inactive' %}bg-gray-100 text-gray-800
+                                    {% else %}bg-red-100 text-red-800{% endif %}">
+                                    {{ ad.get_status_display }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-gray-900">{{ ad.views }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-500">{{ ad.created_at|date:"M d, Y" }}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex gap-2">
+                                    <a href="{% url 'admin_advertisement_view' ad.id %}" class="text-blue-600 hover:text-blue-800 font-medium">View</a>
+                                    <a href="{% url 'admin_advertisement_edit' ad.id %}" class="text-green-600 hover:text-green-800 font-medium">Edit</a>
+                                    <a href="{% url 'admin_advertisement_delete' ad.id %}" class="text-red-600 hover:text-red-800 font-medium">Delete</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <!-- Pagination -->
+            {% if advertisements.has_other_pages %}
+                <div class="bg-gray-50 px-6 py-4 flex justify-center gap-2">
+                    {% if advertisements.has_previous %}
+                        <a href="?page=1" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">First</a>
+                        <a href="?page={{ advertisements.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">Previous</a>
+                    {% endif %}
+
+                    <span class="px-3 py-1">Page {{ advertisements.number }} of {{ advertisements.paginator.num_pages }}</span>
+
+                    {% if advertisements.has_next %}
+                        <a href="?page={{ advertisements.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">Next</a>
+                        <a href="?page={{ advertisements.paginator.num_pages }}" class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-100">Last</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="px-6 py-12 text-center">
+                <p class="text-gray-500 text-lg">No advertisements found.</p>
+                <a href="{% url 'admin_advertisement_add' %}" class="text-yellow-600 hover:text-yellow-700 font-medium mt-4 inline-block">
+                    Create your first advertisement
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

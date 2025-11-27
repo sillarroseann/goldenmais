@@ -13,6 +13,7 @@ urlpatterns = [
     path('messages/<int:contact_id>/', views.contact_conversation, name='contact_conversation'),
     path('search/', views.search, name='search'),
     path('profile/', views.profile, name='profile'),
+    path('promotions/', views.advertisements_page, name='advertisements_page'),
     
     # Authentication
     path('login/', views.customer_login, name='login'),
@@ -71,4 +72,16 @@ urlpatterns = [
     path('admin-add-staff/', views.admin_add_staff, name='admin_add_staff'),
     path('mark-contact-read/<int:contact_id>/', views.mark_contact_read, name='mark_contact_read'),
     path('update-order-status/<int:order_id>/', views.update_order_status, name='update_order_status'),
+    
+    # Advertisement Management (Admin)
+    path('admin-advertisements/', views.admin_advertisements, name='admin_advertisements'),
+    path('admin-advertisement-add/', views.admin_advertisement_add, name='admin_advertisement_add'),
+    path('admin-advertisement-edit/<int:ad_id>/', views.admin_advertisement_edit, name='admin_advertisement_edit'),
+    path('admin-advertisement-view/<int:ad_id>/', views.admin_advertisement_view, name='admin_advertisement_view'),
+    path('admin-advertisement-delete/<int:ad_id>/', views.admin_advertisement_delete, name='admin_advertisement_delete'),
+    path('admin-advertisement-toggle-status/<int:ad_id>/', views.admin_advertisement_toggle_status, name='admin_advertisement_toggle_status'),
+    
+    # Advertisement API (Public)
+    path('api/advertisements/carousel/', views.advertisements_carousel, name='advertisements_carousel'),
+    path('api/advertisements/videos/', views.advertisements_videos, name='advertisements_videos'),
 ]

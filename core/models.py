@@ -332,5 +332,71 @@ class CartItem(models.Model):
         return self.quantity * self.product.price
 
 
+class Advertisement(models.Model):
+    """Model for managing video advertisements and promotional banners"""
+    ADVERTISEMENT_TYPES = [
+        ('video', 'Video Advertisement'),
+        ('banner', 'Banner/Poster'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+        ('archived', 'Archived'),
+    ]
+    
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True)
+    ad_type = models.CharField(max_length=10, choices=ADVERTISEMENT_TYPES)
+    
+    # For video advertisements
+    video_file = models.FileField(upload_to='advertisements/videos/', blank=True, null=True, help_text='Upload MP4, WebM, or OGV video files')
+    video_url = models.URLField(blank=True, null=True, help_text='Or provide a YouTube/Vimeo URL')
+    
+    # For banners/posters
+    image = models.ImageField(upload_to='advertisements/banners/', blank=True, null=True)
+    
+    # Display settings
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
+    display_order = models.PositiveIntegerField(default=0, help_text='Order in which ads are displayed (lower numbers first)')
+    
+    # Duration settings
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+    
+    # Engagement tracking
+    views = models.PositiveIntegerField(default=0)
+    clicks = models.PositiveIntegerField(default=0)
+    
+    # Metadata
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='advertisements')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['display_order', '-created_at']
+        verbose_name_plural = "Advertisements"
+    
+    def __str__(self):
+        return f"{self.title} ({self.get_ad_type_display()})"
+    
+    def is_active_now(self):
+        """Check if advertisement should be displayed now"""
+        from django.utils import timezone
+        now = timezone.now()
+        
+        if self.status != 'active':
+            return False
+        
+        if self.start_date and now < self.start_date:
+            return False
+        
+        if self.end_date and now > self.end_date:
+            return False
+        
+        return True
+
+
 # Payment model temporarily disabled - will be added back after proper setup
 # This ensures the server can start without migration issues
