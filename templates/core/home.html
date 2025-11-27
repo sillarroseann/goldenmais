@@ -62,24 +62,29 @@
 <!-- Promotional Advertisements Section -->
 {% if advertisements %}
 <section class="py-12 px-8 bg-gradient-to-r from-yellow-100 to-green-100">
-    <div class="max-w-6xl mx-auto">
+    <div class="max-w-7xl mx-auto">
         <h2 class="text-2xl font-bold text-green-700 text-center mb-8">🎯 Special Promotions</h2>
         
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="space-y-6">
             {% for ad in advertisements %}
-            <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition transform hover:scale-105 cursor-pointer">
-                {% if ad.image %}
-                    <img src="{{ ad.image.url }}" alt="{{ ad.title }}" class="w-full h-48 object-cover" />
-                {% else %}
-                    <div class="w-full h-48 bg-gradient-to-br from-yellow-300 to-green-300 flex items-center justify-center">
-                        <span class="text-white text-lg font-bold">{{ ad.title }}</span>
-                    </div>
-                {% endif %}
-                <div class="p-4 bg-white">
-                    <h3 class="font-bold text-green-700 mb-2">{{ ad.title }}</h3>
-                    {% if ad.description %}
-                        <p class="text-sm text-gray-600">{{ ad.description|truncatewords:15 }}</p>
+            <div class="rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition">
+                <!-- Full-Width Banner -->
+                <div class="relative">
+                    {% if ad.image %}
+                        <img src="{{ ad.image.url }}" alt="{{ ad.title }}" class="w-full h-64 md:h-80 object-cover hover:opacity-95 transition-opacity duration-300" />
+                    {% else %}
+                        <div class="w-full h-64 md:h-80 bg-gradient-to-br from-yellow-300 to-green-300 flex items-center justify-center">
+                            <span class="text-white text-2xl font-bold text-center px-4">{{ ad.title }}</span>
+                        </div>
                     {% endif %}
+                    
+                    <!-- Overlay Info -->
+                    <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black via-black/50 to-transparent p-6">
+                        <h3 class="font-bold text-white text-xl mb-1">{{ ad.title }}</h3>
+                        {% if ad.description %}
+                            <p class="text-gray-100 text-sm line-clamp-2">{{ ad.description }}</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}

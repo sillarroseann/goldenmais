@@ -65,36 +65,41 @@
     <!-- Banner Advertisements Section -->
     {% if banner_ads %}
     <section class="py-16 px-8 bg-yellow-50">
-        <div class="max-w-6xl mx-auto">
+        <div class="max-w-7xl mx-auto">
             <h2 class="text-3xl font-bold text-green-700 mb-10 flex items-center">
                 <i class="fas fa-image mr-3 text-yellow-500"></i>
                 Promotional Banners
             </h2>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="space-y-8">
                 {% for ad in banner_ads %}
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition transform hover:scale-105 cursor-pointer">
-                    <!-- Banner Image -->
-                    {% if ad.image %}
-                        <img src="{{ ad.image.url }}" alt="{{ ad.title }}" class="w-full h-48 object-cover hover:scale-110 transition-transform duration-300" />
-                    {% else %}
-                        <div class="w-full h-48 bg-gradient-to-br from-yellow-300 to-green-300 flex items-center justify-center">
-                            <span class="text-white text-lg font-bold text-center px-4">{{ ad.title }}</span>
-                        </div>
-                    {% endif %}
-                    
-                    <!-- Content -->
-                    <div class="p-4">
-                        <h3 class="font-bold text-green-700 mb-2">{{ ad.title }}</h3>
-                        {% if ad.description %}
-                            <p class="text-sm text-gray-600 mb-3">{{ ad.description|truncatewords:15 }}</p>
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition">
+                    <!-- Full-Size Banner Image -->
+                    <div class="relative">
+                        {% if ad.image %}
+                            <img src="{{ ad.image.url }}" alt="{{ ad.title }}" class="w-full h-auto object-cover hover:opacity-95 transition-opacity duration-300" />
+                        {% else %}
+                            <div class="w-full h-96 bg-gradient-to-br from-yellow-300 to-green-300 flex items-center justify-center">
+                                <span class="text-white text-3xl font-bold text-center px-4">{{ ad.title }}</span>
+                            </div>
                         {% endif %}
                         
-                        <!-- Metadata -->
-                        <div class="flex items-center justify-between text-xs text-gray-500 pt-3 border-t">
-                            <span><i class="fas fa-eye mr-1"></i>{{ ad.views }}</span>
-                            <span><i class="fas fa-calendar mr-1"></i>{{ ad.created_at|date:"M d" }}</span>
+                        <!-- Overlay with Info -->
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-6">
+                            <h3 class="font-bold text-white text-2xl mb-2">{{ ad.title }}</h3>
+                            {% if ad.description %}
+                                <p class="text-gray-100 text-sm">{{ ad.description }}</p>
+                            {% endif %}
                         </div>
+                    </div>
+                    
+                    <!-- Metadata Footer -->
+                    <div class="px-6 py-4 bg-gray-50 flex items-center justify-between">
+                        <div class="flex items-center space-x-6 text-gray-600">
+                            <span><i class="fas fa-eye mr-2 text-green-600"></i>{{ ad.views }} views</span>
+                            <span><i class="fas fa-calendar mr-2 text-green-600"></i>{{ ad.created_at|date:"M d, Y" }}</span>
+                        </div>
+                        <span class="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full">Active</span>
                     </div>
                 </div>
                 {% endfor %}
